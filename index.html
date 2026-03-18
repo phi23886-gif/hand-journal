@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="HU Journal">
+<meta name="description" content="บันทึก Hand Poker สำหรับ Heads-Up Tournament โดย พีร์ บุญชนะวิวัฒน์ · Peace of Mind Trader">
+<meta name="author" content="พีร์ บุญชนะวิวัฒน์">
+<meta name="theme-color" content="#0E0E0F">
+<link rel="manifest" id="pwa-manifest">
+<title>HU Hand Journal · Peace of Mind Trader</title>
+<script>
+// Inline PWA manifest (no separate file needed)
+const manifest = {
+  name: 'HU Hand Journal',
+  short_name: 'HU Journal',
+  description: 'บันทึก Hand Poker สำหรับ Heads-Up Tournament โดย พีร์ บุญชนะวิวัฒน์ · Peace of Mind Trader',
+  start_url: '.',
+  display: 'standalone',
+  background_color: '#0E0E0F',
+  theme_color: '#0E0E0F',
+  icons: [{
+    src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230E0E0F'/><text y='130' x='96' text-anchor='middle' font-size='120' font-family='serif'>🃏</text></svg>",
+    sizes: '192x192', type: 'image/svg+xml'
+  }]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+</script>
+<style>
+
+/* ═══════════════════════════════════════════════════
+   THEMES
+═══════════════════════════════════════════════════ */
+
+[data-theme="dark"] {
+  --bg:        #0E0E0F;
+  --surface:   #18181B;
+  --card:      #1F1F23;
+  --raised:    #26262C;
+  --border:    #2A2A30;
+  --border2:   #35353D;
+  --text:      #E8E8EA;
+  --sub:       #8A8A96;
+  --muted:     #525260;
+  --accent:    #C9963A;
+  --accent2:   #E6B84A;
+  --acc-text:  #000000;
+  --ok:        #1E3A28;
+  --ok2:       #4CAF64;
+  --warn:      #2E2510;
+  --warn2:     #D4A030;
+  --err:       #2E1010;
+  --err2:      #C94040;
+  --spade:     #E8E8EA;
+  --heart:     #E05050;
+  --diamond:   #4A90D8;
+  --club:      #6BBF6B;
+  --modal-bg:  rgba(0,0,0,0.75);
+  --toast-bg:  #2A5A38;
+}
+
+[data-theme="minimal"] {
+  --bg:        #F4F4F2;
+  --surface:   #FFFFFF;
+  --card:      #F9F9F7;
+  --raised:    #FFFFFF;
+  --border:    #E0E0DC;
+  --border2:   #CACAC4;
+  --text:      #1A1A1A;
+  --sub:       #6A6A6A;
+  --muted:     #AAAAAA;
+  --accent:    #1A1A1A;
+  --accent2:   #333333;
+  --acc-text:  #FFFFFF;
+  --ok:        #EBF5EE;
+  --ok2:       #2A7A3A;
+  --warn:      #FDF6E8;
+  --warn2:     #8A6010;
+  --err:       #FDF0F0;
+  --err2:      #AA2020;
+  --spade:     #1A1A1A;
+  --heart:     #CC2222;
+  --diamond:   #1A55AA;
+  --club:      #1A7A1A;
+  --modal-bg:  rgba(0,0,0,0.4);
+  --toast-bg:  #2A5A38;
+}
+
+/* ═══════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════ */
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; background:var(--bg); color:var(--text);
+  font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; transition:background 0.25s,color 0.25s; }
+
+#app { display:flex; flex-direction:column; height:100dvh; max-width:480px; margin:0 auto; }
+
+/* ── Topbar ── */
+#topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px 10px; border-bottom:1px solid var(--border);
+  background:var(--surface); flex-shrink:0; transition:background 0.25s,border-color 0.25s;
+}
+#topbar h1 { font-size:15px; font-weight:700; letter-spacing:0.04em; color:var(--accent); transition:color 0.25s; }
+#topbar small { font-size:10px; color:var(--muted); display:block; margin-top:1px; }
+.topbar-right { display:flex; gap:8px; }
+
+.icon-btn {
+  width:36px; height:36px; border-radius:8px; border:1px solid var(--border2);
+  background:var(--card); color:var(--text); font-size:15px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:all 0.2s; flex-shrink:0; user-select:none;
+}
+.icon-btn:active { opacity:0.7; }
+
+/* ── Theme switcher pill ── */
+#theme-pill {
+  display:flex; border:1px solid var(--border2); border-radius:20px;
+  overflow:hidden; background:var(--card); flex-shrink:0;
+}
+.theme-opt {
+  padding:6px 12px; font-size:10px; font-weight:700; letter-spacing:0.05em;
+  cursor:pointer; color:var(--muted); transition:all 0.2s; white-space:nowrap;
+  user-select:none;
+}
+.theme-opt.active { background:var(--accent); color:var(--acc-text); }
+
+/* ── Tabs ── */
+#tabs {
+  display:flex; background:var(--surface);
+  border-bottom:1px solid var(--border); flex-shrink:0;
+  transition:background 0.25s,border-color 0.25s;
+}
+.tab {
+  flex:1; padding:10px 4px; text-align:center; font-size:11px; font-weight:600;
+  color:var(--muted); cursor:pointer; border-bottom:2px solid transparent;
+  transition:all 0.2s; letter-spacing:0.03em;
+}
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* ── Content ── */
+#content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.panel { padding:14px 14px 110px; display:none; }
+.panel.active { display:block; }
+
+/* ── Section ── */
+.section { margin-bottom:14px; }
+.section-label {
+  font-size:9px; font-weight:700; letter-spacing:0.13em; color:var(--muted);
+  text-transform:uppercase; margin-bottom:6px; padding-left:2px;
+}
+.row { display:flex; gap:8px; }
+.col { flex:1; }
+
+/* ── Fields ── */
+.field-label { font-size:10px; color:var(--sub); margin-bottom:4px; display:block; }
+.field {
+  background:var(--card); border:1px solid var(--border2); border-radius:8px;
+  padding:10px 12px; width:100%; color:var(--text); font-size:15px;
+  outline:none; -webkit-appearance:none; transition:border-color 0.2s,background 0.25s;
+}
+.field:focus { border-color:var(--accent); }
+input[type=number].field::-webkit-inner-spin-button { -webkit-appearance:none; }
+
+/* ── Toggle group ── */
+.toggle-group {
+  display:flex; background:var(--card); border:1px solid var(--border2);
+  border-radius:8px; overflow:hidden; transition:background 0.25s;
+}
+.toggle-btn {
+  flex:1; padding:11px; text-align:center; font-size:13px; font-weight:700;
+  cursor:pointer; color:var(--muted); transition:all 0.15s; letter-spacing:0.04em;
+}
+.toggle-btn.active { background:var(--accent); color:var(--acc-text); }
+
+/* ── Card picker box ── */
+.card-picker {
+  background:var(--card); border:1px solid var(--border2); border-radius:8px;
+  padding:10px; transition:background 0.25s;
+}
+.card-display { display:flex; gap:8px; margin-bottom:10px; }
+.card-slot {
+  flex:1; height:56px; border:1.5px dashed var(--border2);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700; cursor:pointer; transition:all 0.15s; position:relative;
+}
+.card-slot.filled { border-style:solid; background:var(--raised); }
+.card-slot .x-btn {
+  position:absolute; top:2px; right:5px; font-size:10px; color:var(--muted);
+  line-height:1; cursor:pointer;
+}
+
+/* ── Board cards ── */
+.board-row { display:flex; gap:6px; }
+.board-card {
+  flex:1; height:48px; background:var(--surface); border:1.5px dashed var(--border2);
+  border-radius:6px; display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:700; cursor:pointer; transition:all 0.2s; color:var(--muted);
+}
+.board-card.filled { border-style:solid; background:var(--card); }
+
+/* ── Action log ── */
+.action-log {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; padding:10px 12px; min-height:38px;
+  font-size:13px; font-family:'Courier New',monospace; word-break:break-all;
+  transition:background 0.25s; color:var(--text); line-height:1.5;
+}
+.log-ph { color:var(--muted); }
+
+/* ── Action buttons ── */
+.action-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:8px; }
+.act-btn {
+  padding:9px 4px; text-align:center; border-radius:6px;
+  background:var(--card); border:1px solid var(--border2);
+  font-size:11px; font-weight:700; cursor:pointer; color:var(--sub);
+  letter-spacing:0.02em; transition:all 0.15s; user-select:none;
+}
+.act-btn:active { opacity:0.7; }
+
+/* ── Sizing chips ── */
+.sizing-chips { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.size-chip {
+  padding:5px 11px; border-radius:20px; font-size:11px; font-weight:700;
+  background:var(--surface); border:1px solid var(--border2); cursor:pointer;
+  color:var(--sub); transition:all 0.15s; user-select:none;
+}
+.size-chip.on { background:var(--accent); color:var(--acc-text); border-color:var(--accent); }
+
+/* ── Decision buttons ── */
+.dec-row { display:flex; gap:8px; }
+.dec-btn {
+  flex:1; padding:12px 4px; text-align:center; border-radius:8px;
+  font-size:13px; font-weight:700; cursor:pointer;
+  border:1.5px solid var(--border2); background:var(--card);
+  color:var(--muted); transition:all 0.2s; user-select:none;
+}
+.dec-btn[data-v="ok"].on { background:var(--ok); border-color:var(--ok2); color:var(--ok2); }
+.dec-btn[data-v="q"].on  { background:var(--warn); border-color:var(--warn2); color:var(--warn2); }
+.dec-btn[data-v="x"].on  { background:var(--err); border-color:var(--err2); color:var(--err2); }
+
+/* ── Save button ── */
+#save-btn {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px; padding:16px;
+  background:var(--accent); color:var(--acc-text);
+  font-size:15px; font-weight:800; letter-spacing:0.06em;
+  border:none; cursor:pointer; text-align:center; display:none;
+  transition:background 0.25s,color 0.25s;
+}
+#save-btn.show { display:block; }
+
+/* ── History ── */
+.hist-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; margin-bottom:10px; overflow:hidden;
+  transition:background 0.25s;
+}
+.hist-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 14px; cursor:pointer;
+}
+.hist-num { font-size:11px; font-weight:700; color:var(--accent); }
+.hist-prev { font-size:12px; color:var(--sub); font-family:monospace; margin-top:2px; }
+.hist-badge { font-size:13px; font-weight:700; }
+.hist-badge.ok { color:var(--ok2); }
+.hist-badge.q  { color:var(--warn2); }
+.hist-badge.x  { color:var(--err2); }
+.hist-body {
+  display:none; padding:0 14px 12px;
+  border-top:1px solid var(--border);
+  font-size:12px; font-family:monospace;
+  color:var(--sub); white-space:pre-wrap; line-height:1.7;
+}
+.hist-body.open { display:block; }
+.hist-foot {
+  display:flex; gap:6px; padding:8px 14px;
+  border-top:1px solid var(--border);
+}
+.mini-btn {
+  flex:1; padding:7px; text-align:center; border-radius:6px;
+  font-size:11px; font-weight:700; cursor:pointer;
+  background:var(--card); border:1px solid var(--border2); color:var(--sub);
+  transition:all 0.15s;
+}
+
+/* ── Empty ── */
+.empty { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-icon { font-size:40px; margin-bottom:12px; }
+.empty p { font-size:13px; line-height:1.6; }
+
+/* ── Modal ── */
+#overlay {
+  position:fixed; inset:0; background:var(--modal-bg);
+  z-index:200; display:none; align-items:flex-end; justify-content:center;
+}
+#overlay.open { display:flex; }
+#modal {
+  background:var(--surface); border-radius:20px 20px 0 0;
+  padding:16px; width:100%; max-width:480px;
+  max-height:80vh; overflow-y:auto;
+  transition:background 0.25s;
+}
+.modal-title {
+  font-size:12px; font-weight:700; color:var(--muted);
+  text-align:center; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.1em;
+}
+
+/* rank/suit grids */
+.rank-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:10px; }
+.suit-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; }
+.pick-btn {
+  padding:9px 4px; text-align:center; border-radius:6px;
+  background:var(--card); border:1px solid var(--border);
+  font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s;
+  color:var(--sub); user-select:none;
+}
+.pick-btn.r-on { background:var(--accent); color:var(--acc-text); border-color:var(--accent); }
+.pick-btn.sS { color:var(--spade); }
+.pick-btn.sH { color:var(--heart); }
+.pick-btn.sD { color:var(--diamond); }
+.pick-btn.sC { color:var(--club); }
+.pick-btn.sS.s-on { background:#1E2030; border-color:var(--spade); }
+.pick-btn.sH.s-on { background:#2A1A1A; border-color:var(--heart); }
+.pick-btn.sD.s-on { background:#1A1E2C; border-color:var(--diamond); }
+.pick-btn.sC.s-on { background:#1A2A1A; border-color:var(--club); }
+
+[data-theme="minimal"] .pick-btn.sS.s-on { background:#E8E8F0; border-color:var(--spade); }
+[data-theme="minimal"] .pick-btn.sH.s-on { background:#F5E0E0; border-color:var(--heart); }
+[data-theme="minimal"] .pick-btn.sD.s-on { background:#E0E8F5; border-color:var(--diamond); }
+[data-theme="minimal"] .pick-btn.sC.s-on { background:#E0F0E0; border-color:var(--club); }
+
+.confirm-btn {
+  width:100%; margin-top:14px; padding:14px;
+  background:var(--accent); color:var(--acc-text);
+  border:none; border-radius:8px; font-size:15px; font-weight:800;
+  cursor:pointer; transition:background 0.25s,color 0.25s;
+}
+
+/* ── Toast ── */
+#toast {
+  position:fixed; bottom:72px; left:50%; transform:translateX(-50%);
+  background:var(--toast-bg); color:#fff; padding:10px 22px;
+  border-radius:20px; font-size:13px; font-weight:700;
+  opacity:0; transition:opacity 0.3s; z-index:300; pointer-events:none;
+}
+#toast.show { opacity:1; }
+
+/* ── Suit colors ── */
+.cs { color:var(--spade); } .ch { color:var(--heart); }
+.cd { color:var(--diamond); } .cc { color:var(--club); }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Topbar -->
+  <div id="topbar">
+    <div>
+      <h1>HU HAND JOURNAL</h1>
+      <small id="theme-name">โดย พีร์ บุญชนะวิวัฒน์ · Peace of Mind Trader</small>
+    </div>
+    <div class="topbar-right">
+      <div id="theme-pill">
+        <div class="theme-opt active" data-t="dark"    onclick="setTheme('dark')">DARK</div>
+        <div class="theme-opt"        data-t="minimal" onclick="setTheme('minimal')">MINIMAL</div>
+      </div>
+      <div class="icon-btn" onclick="exportAll()" title="Export all">📤</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div id="tabs">
+    <div class="tab active" onclick="switchTab('form')">📝 บันทึก</div>
+    <div class="tab"        onclick="switchTab('history')">📚 ประวัติ</div>
+    <div class="tab"        onclick="switchTab('about')">🃏 เกี่ยวกับ</div>
+  </div>
+
+  <!-- Content -->
+  <div id="content">
+
+    <!-- ══ FORM ══ -->
+    <div class="panel active" id="panel-form">
+
+      <!-- Session -->
+      <div class="section">
+        <div class="section-label">Session</div>
+        <div class="row">
+          <div class="col">
+            <span class="field-label">Blind Level</span>
+            <input class="field" id="f-blind" placeholder="30k/60k">
+          </div>
+          <div class="col">
+            <span class="field-label">Ante</span>
+            <input class="field" id="f-ante" placeholder="60k BB-ant">
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup -->
+      <div class="section">
+        <div class="section-label">Setup</div>
+        <span class="field-label">Hero Position</span>
+        <div class="toggle-group" style="margin-bottom:8px">
+          <div class="toggle-btn active" data-pos="BTN" onclick="setPos(this)">
+            BTN <span style="font-size:9px;font-weight:400">· Dealer · SB</span>
+          </div>
+          <div class="toggle-btn" data-pos="BB" onclick="setPos(this)">
+            BB <span style="font-size:9px;font-weight:400">· Non-dealer</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <span class="field-label">Hero Stack (bb)</span>
+            <input class="field" id="f-hero-st" placeholder="45" type="number">
+          </div>
+          <div class="col">
+            <span class="field-label">Villain Stack (bb)</span>
+            <input class="field" id="f-vil-st" placeholder="30" type="number">
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero cards -->
+      <div class="section">
+        <div class="section-label">Hero Hole Cards</div>
+        <div class="card-picker">
+          <div class="card-display">
+            <div class="card-slot" id="hs0" onclick="openPicker('hero',0)">
+              <span class="log-ph" style="font-size:12px">Card 1</span>
+            </div>
+            <div class="card-slot" id="hs1" onclick="openPicker('hero',1)">
+              <span class="log-ph" style="font-size:12px">Card 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Villain read -->
+      <div class="section">
+        <div class="section-label">Villain Read / Tells</div>
+        <input class="field" id="f-read" placeholder="Tight, passive, aggressive short stack...">
+      </div>
+
+      <!-- Preflop -->
+      <div class="section">
+        <div class="section-label">Preflop</div>
+        <div class="action-log" id="log-pf"><span class="log-ph">กด action...</span></div>
+        <div class="action-grid">
+          <div class="act-btn" onclick="act('pf','r')">r raise</div>
+          <div class="act-btn" onclick="act('pf','c')">c call</div>
+          <div class="act-btn" onclick="act('pf','f')">f fold</div>
+          <div class="act-btn" onclick="act('pf','shv')">shv jam</div>
+          <div class="act-btn" onclick="act('pf','3b')">3b</div>
+          <div class="act-btn" onclick="act('pf','4b')">4b</div>
+          <div class="act-btn" onclick="act('pf','sq')">sq</div>
+          <div class="act-btn" onclick="undo('pf')" style="color:var(--err2)">↩ undo</div>
+        </div>
+        <div class="sizing-chips" id="sc-pf">
+          <div class="size-chip" onclick="sz('pf','2x',this)">2x</div>
+          <div class="size-chip" onclick="sz('pf','2.5x',this)">2.5x</div>
+          <div class="size-chip" onclick="sz('pf','3x',this)">3x</div>
+          <div class="size-chip" onclick="sz('pf','8x',this)">8x</div>
+          <div class="size-chip" onclick="sz('pf','10x',this)">10x</div>
+        </div>
+        <div class="toggle-group" style="margin-top:8px;height:36px" id="ag-pf">
+          <div class="toggle-btn active" style="padding:8px" data-a="Hero"    onclick="setActor('pf',this)">Hero</div>
+          <div class="toggle-btn"        style="padding:8px" data-a="Villain" onclick="setActor('pf',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- Flop -->
+      <div class="section">
+        <div class="section-label">Flop</div>
+        <div class="board-row" style="margin-bottom:8px">
+          <div class="board-card" id="bf0" onclick="openPicker('board',0)">?</div>
+          <div class="board-card" id="bf1" onclick="openPicker('board',1)">?</div>
+          <div class="board-card" id="bf2" onclick="openPicker('board',2)">?</div>
+        </div>
+        <div class="action-log" id="log-flop"><span class="log-ph">กด action...</span></div>
+        <div class="action-grid">
+          <div class="act-btn" onclick="act('flop','x')">x check</div>
+          <div class="act-btn" onclick="act('flop','b')">b bet</div>
+          <div class="act-btn" onclick="act('flop','c')">c call</div>
+          <div class="act-btn" onclick="act('flop','f')">f fold</div>
+          <div class="act-btn" onclick="act('flop','r')">r raise</div>
+          <div class="act-btn" onclick="act('flop','cb')">cb c-bet</div>
+          <div class="act-btn" onclick="act('flop','shv')">shv jam</div>
+          <div class="act-btn" onclick="undo('flop')" style="color:var(--err2)">↩ undo</div>
+        </div>
+        <div class="sizing-chips" id="sc-flop">
+          <div class="size-chip" onclick="sz('flop','25',this)">b25</div>
+          <div class="size-chip" onclick="sz('flop','33',this)">b33</div>
+          <div class="size-chip" onclick="sz('flop','50',this)">b50</div>
+          <div class="size-chip" onclick="sz('flop','75',this)">b75</div>
+          <div class="size-chip" onclick="sz('flop','100',this)">b100</div>
+        </div>
+        <div class="toggle-group" style="margin-top:8px;height:36px" id="ag-flop">
+          <div class="toggle-btn active" style="padding:8px" data-a="Hero"    onclick="setActor('flop',this)">Hero</div>
+          <div class="toggle-btn"        style="padding:8px" data-a="Villain" onclick="setActor('flop',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- Turn -->
+      <div class="section">
+        <div class="section-label">Turn</div>
+        <div class="board-row" style="margin-bottom:8px">
+          <div class="board-card" style="flex:0 0 64px" id="bt" onclick="openPicker('board',3)">?</div>
+        </div>
+        <div class="action-log" id="log-turn"><span class="log-ph">กด action...</span></div>
+        <div class="action-grid">
+          <div class="act-btn" onclick="act('turn','x')">x check</div>
+          <div class="act-btn" onclick="act('turn','b')">b bet</div>
+          <div class="act-btn" onclick="act('turn','c')">c call</div>
+          <div class="act-btn" onclick="act('turn','f')">f fold</div>
+          <div class="act-btn" onclick="act('turn','r')">r raise</div>
+          <div class="act-btn" onclick="act('turn','shv')">shv jam</div>
+          <div class="act-btn" onclick="act('turn','ai')">ai all-in</div>
+          <div class="act-btn" onclick="undo('turn')" style="color:var(--err2)">↩ undo</div>
+        </div>
+        <div class="sizing-chips" id="sc-turn">
+          <div class="size-chip" onclick="sz('turn','33',this)">b33</div>
+          <div class="size-chip" onclick="sz('turn','50',this)">b50</div>
+          <div class="size-chip" onclick="sz('turn','75',this)">b75</div>
+          <div class="size-chip" onclick="sz('turn','100',this)">b100</div>
+          <div class="size-chip" onclick="sz('turn','150',this)">b150</div>
+        </div>
+        <div class="toggle-group" style="margin-top:8px;height:36px" id="ag-turn">
+          <div class="toggle-btn active" style="padding:8px" data-a="Hero"    onclick="setActor('turn',this)">Hero</div>
+          <div class="toggle-btn"        style="padding:8px" data-a="Villain" onclick="setActor('turn',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- River -->
+      <div class="section">
+        <div class="section-label">River</div>
+        <div class="board-row" style="margin-bottom:8px">
+          <div class="board-card" style="flex:0 0 64px" id="br" onclick="openPicker('board',4)">?</div>
+        </div>
+        <div class="action-log" id="log-river"><span class="log-ph">กด action...</span></div>
+        <div class="action-grid">
+          <div class="act-btn" onclick="act('river','x')">x check</div>
+          <div class="act-btn" onclick="act('river','b')">b bet</div>
+          <div class="act-btn" onclick="act('river','c')">c call</div>
+          <div class="act-btn" onclick="act('river','f')">f fold</div>
+          <div class="act-btn" onclick="act('river','r')">r raise</div>
+          <div class="act-btn" onclick="act('river','shv')">shv jam</div>
+          <div class="act-btn" onclick="act('river','ai')">ai all-in</div>
+          <div class="act-btn" onclick="undo('river')" style="color:var(--err2)">↩ undo</div>
+        </div>
+        <div class="sizing-chips" id="sc-river">
+          <div class="size-chip" onclick="sz('river','33',this)">b33</div>
+          <div class="size-chip" onclick="sz('river','50',this)">b50</div>
+          <div class="size-chip" onclick="sz('river','75',this)">b75</div>
+          <div class="size-chip" onclick="sz('river','100',this)">b100</div>
+          <div class="size-chip" onclick="sz('river','150',this)">b150</div>
+        </div>
+        <div class="toggle-group" style="margin-top:8px;height:36px" id="ag-river">
+          <div class="toggle-btn active" style="padding:8px" data-a="Hero"    onclick="setActor('river',this)">Hero</div>
+          <div class="toggle-btn"        style="padding:8px" data-a="Villain" onclick="setActor('river',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- Villain showdown -->
+      <div class="section">
+        <div class="section-label">Villain Hand (Showdown)</div>
+        <div class="card-picker">
+          <div class="card-display">
+            <div class="card-slot" id="vs0" onclick="openPicker('villain',0)">
+              <span class="log-ph" style="font-size:12px">Card 1</span>
+            </div>
+            <div class="card-slot" id="vs1" onclick="openPicker('villain',1)">
+              <span class="log-ph" style="font-size:12px">Card 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result + Decision -->
+      <div class="section">
+        <div class="section-label">Result & Decision</div>
+        <div class="row" style="margin-bottom:10px">
+          <div class="col">
+            <span class="field-label">Result +/- (bb)</span>
+            <input class="field" id="f-result" placeholder="+18 หรือ -22">
+          </div>
+        </div>
+        <div class="dec-row">
+          <div class="dec-btn" data-v="ok" onclick="setDec(this)">[OK]<br><span style="font-size:9px;font-weight:400">ถูกต้อง</span></div>
+          <div class="dec-btn" data-v="q"  onclick="setDec(this)">[?]<br><span style="font-size:9px;font-weight:400">ไม่แน่ใจ</span></div>
+          <div class="dec-btn" data-v="x"  onclick="setDec(this)">[X]<br><span style="font-size:9px;font-weight:400">ผิดพลาด</span></div>
+        </div>
+      </div>
+
+      <!-- Note -->
+      <div class="section">
+        <div class="section-label">Thought / Lesson</div>
+        <textarea class="field" id="f-note" rows="3"
+          placeholder="ทำไมถึงตัดสินใจแบบนั้น? บทเรียนคืออะไร?"
+          style="resize:none;line-height:1.5"></textarea>
+      </div>
+
+    </div><!-- /panel-form -->
+
+    <!-- ══ HISTORY ══ -->
+    <div class="panel" id="panel-history">
+      <div id="hist-list"></div>
+    </div>
+
+    <!-- ══ ABOUT ══ -->
+    <div class="panel" id="panel-about">
+
+      <!-- Hero card -->
+      <div style="text-align:center; padding:28px 0 20px;">
+        <div style="font-size:52px; margin-bottom:12px;">🃏</div>
+        <div style="font-size:20px; font-weight:800; letter-spacing:0.04em; color:var(--accent);">
+          HU HAND JOURNAL
+        </div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px; letter-spacing:0.06em;">
+          HEADS-UP TOURNAMENT EDITION
+        </div>
+      </div>
+
+      <!-- Author card -->
+      <div style="background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:20px; margin-bottom:14px;">
+        <div style="font-size:9px; font-weight:700; letter-spacing:0.13em; color:var(--muted); text-transform:uppercase; margin-bottom:10px;">ผู้พัฒนา</div>
+        <div style="font-size:18px; font-weight:800; color:var(--text); margin-bottom:4px;">พีร์ บุญชนะวิวัฒน์</div>
+        <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:14px;">Peace of Mind Trader</div>
+        <div style="height:1px; background:var(--border); margin-bottom:14px;"></div>
+        <div style="font-size:11px; color:var(--sub); line-height:1.8;">
+          นักเทรดและ Content Creator ผู้เชื่อว่า<br>
+          <span style="color:var(--text); font-weight:600;">"เทรดดีขึ้น เมื่อหัวใจสงบลง"</span><br><br>
+          แอพนี้สร้างขึ้นจากประสบการณ์จริงในทัวร์นาเม้นต์<br>
+          เพื่อช่วยเพื่อนๆ พัฒนาเกมโป๊กเกอร์อย่างมีระบบ
+        </div>
+      </div>
+
+      <!-- Social -->
+      <div style="background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:20px; margin-bottom:14px;">
+        <div style="font-size:9px; font-weight:700; letter-spacing:0.13em; color:var(--muted); text-transform:uppercase; margin-bottom:12px;">ติดตาม</div>
+        <a href="https://facebook.com/peaceofmindtrader" target="_blank"
+           style="display:flex; align-items:center; gap:12px; text-decoration:none; margin-bottom:12px;">
+          <div style="width:36px; height:36px; background:var(--surface); border:1px solid var(--border2);
+                      border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px;">f</div>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:var(--text);">Peace of Mind Trader</div>
+            <div style="font-size:11px; color:var(--muted);">facebook.com/peaceofmindtrader</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- How to install -->
+      <div style="background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:20px; margin-bottom:14px;">
+        <div style="font-size:9px; font-weight:700; letter-spacing:0.13em; color:var(--muted); text-transform:uppercase; margin-bottom:12px;">วิธีติดตั้งบนมือถือ</div>
+        <div style="font-size:12px; color:var(--sub); line-height:2;">
+          <span style="color:var(--accent); font-weight:700;">iPhone:</span><br>
+          Safari → Share → Add to Home Screen<br><br>
+          <span style="color:var(--accent); font-weight:700;">Android:</span><br>
+          Chrome → เมนู ⋮ → Add to Home Screen<br><br>
+          <span style="color:var(--text); font-weight:600;">ข้อมูลจัดเก็บในเครื่องของคุณเท่านั้น</span><br>
+          <span style="color:var(--muted);">ใช้ปุ่ม 📤 Export เพื่อ backup เป็น .txt</span>
+        </div>
+      </div>
+
+      <!-- About app -->
+      <div style="background:var(--card); border:1px solid var(--border2); border-radius:12px; padding:20px; margin-bottom:14px;">
+        <div style="font-size:9px; font-weight:700; letter-spacing:0.13em; color:var(--muted); text-transform:uppercase; margin-bottom:12px;">เกี่ยวกับแอพ</div>
+        <div style="font-size:12px; color:var(--sub); line-height:2;">
+          ออกแบบมาสำหรับ <span style="color:var(--text); font-weight:600;">Heads-Up Tournament</span> โดยเฉพาะ<br>
+          รองรับ card picker, action log, sizing chips<br>
+          Dark & Minimal theme · Export เป็น text<br><br>
+          <span style="color:var(--muted); font-size:11px;">v2.0 · 2026 · ใช้งานฟรีสำหรับเพื่อนๆ ของพีร์</span>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div style="text-align:center; padding:16px 8px 32px;">
+        <div style="font-size:13px; color:var(--muted); font-style:italic; line-height:1.8;">
+          "Focus on process, not outcome"
+        </div>
+        <div style="font-size:11px; color:var(--accent); margin-top:6px; font-weight:700; letter-spacing:0.06em;">
+          PEACE OF MIND TRADER
+        </div>
+      </div>
+
+    </div><!-- /panel-about -->
+
+  </div><!-- /content -->
+
+  <button id="save-btn" class="show" onclick="saveHand()">SAVE HAND</button>
+
+</div><!-- /app -->
+
+<!-- Card picker modal -->
+<div id="overlay" onclick="maybeClose(event)">
+  <div id="modal">
+    <div class="modal-title" id="modal-ttl">เลือกไพ่</div>
+    <span class="field-label">Rank</span>
+    <div class="rank-grid" id="rg"></div>
+    <span class="field-label" style="margin-top:10px;display:block">Suit (ดอก)</span>
+    <div class="suit-grid" id="sg"></div>
+    <button class="confirm-btn" onclick="confirmCard()">ยืนยัน</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ Constants ════════════════════════════════════════════════════
+const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+const SUITS = [
+  {v:'s', sym:'♠', cls:'sS', label:'Spade'},
+  {v:'h', sym:'♥', cls:'sH', label:'Heart'},
+  {v:'d', sym:'♦', cls:'sD', label:'Diamond'},
+  {v:'c', sym:'♣', cls:'sC', label:'Club'},
+];
+const SUIT_SYM = {s:'♠',h:'♥',d:'♦',c:'♣'};
+const SUIT_CLS = {s:'cs',h:'ch',d:'cd',c:'cc'};
+
+// ══ State ════════════════════════════════════════════════════════
+let G = fresh();
+function fresh() {
+  return {
+    pos:    'BTN',
+    hCards: [null,null],
+    vCards: [null,null],
+    board:  [null,null,null,null,null],
+    acts:   {pf:[],flop:[],turn:[],river:[]},
+    actor:  {pf:'Hero',flop:'Hero',turn:'Hero',river:'Hero'},
+    sizing: {pf:'',flop:'',turn:'',river:''},
+    dec:    '',
+  };
+}
+
+let hands = JSON.parse(localStorage.getItem('huj_v2') || '[]');
+
+// ══ Theme ════════════════════════════════════════════════════════
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll('.theme-opt').forEach(el =>
+    el.classList.toggle('active', el.dataset.t === t));
+  localStorage.setItem('huj_theme', t);
+}
+// Restore saved theme
+(function(){ const t = localStorage.getItem('huj_theme'); if(t) setTheme(t); })();
+
+// ══ Tabs ═════════════════════════════════════════════════════════
+function switchTab(t) {
+  const tabOrder = ['form','history','about'];
+  document.querySelectorAll('.tab').forEach((el,i) =>
+    el.classList.toggle('active', tabOrder[i] === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  document.getElementById('save-btn').classList.toggle('show', t==='form');
+  if (t==='history') renderHistory();
+}
+
+// ══ Position ════════════════════════════════════════════════════
+function setPos(el) {
+  document.querySelectorAll('[data-pos]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  G.pos = el.dataset.pos;
+}
+
+// ══ Card picker ═════════════════════════════════════════════════
+let pTarget = null, pRank = null, pSuit = null;
+
+function openPicker(grp, idx) {
+  pTarget = {grp,idx}; pRank = null; pSuit = null;
+  const labels = {hero:'Hero Card',villain:'Villain Card',board:'Board Card'};
+  document.getElementById('modal-ttl').textContent = `${labels[grp]} ${idx+1}`;
+
+  document.getElementById('rg').innerHTML =
+    RANKS.map(r => `<div class="pick-btn" onclick="pickRank('${r}',this)">${r}</div>`).join('');
+  document.getElementById('sg').innerHTML =
+    SUITS.map(s =>
+      `<div class="pick-btn ${s.cls}" onclick="pickSuit('${s.v}',this)">
+        ${s.sym} ${s.label}
+      </div>`).join('');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function pickRank(r, el) {
+  pRank = r;
+  document.querySelectorAll('#rg .pick-btn').forEach(b => b.classList.remove('r-on'));
+  el.classList.add('r-on');
+}
+function pickSuit(s, el) {
+  pSuit = s;
+  document.querySelectorAll('#sg .pick-btn').forEach(b => b.classList.remove('s-on'));
+  el.classList.add('s-on');
+}
+
+function confirmCard() {
+  if (!pRank || !pSuit) { toast('เลือก Rank และ Suit ก่อนนะ'); return; }
+  const card = {rank:pRank, suit:pSuit};
+  const {grp,idx} = pTarget;
+  if (grp==='hero')    { G.hCards[idx]=card; renderSlot('hs'+idx, card, grp, idx); }
+  if (grp==='villain') { G.vCards[idx]=card; renderSlot('vs'+idx, card, grp, idx); }
+  if (grp==='board')   { G.board[idx]=card;  renderBoard(idx, card); }
+  closeModal();
+}
+
+function maybeClose(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function cardHTML(card) {
+  return `<span class="${SUIT_CLS[card.suit]}">${card.rank}${SUIT_SYM[card.suit]}</span>`;
+}
+
+function renderSlot(id, card, grp, idx) {
+  const el = document.getElementById(id);
+  el.classList.add('filled');
+  el.innerHTML = cardHTML(card) +
+    `<span class="x-btn" onclick="clearSlot(event,'${id}','${grp}',${idx})">✕</span>`;
+}
+function clearSlot(e, id, grp, idx) {
+  e.stopPropagation();
+  if (grp==='hero')    G.hCards[idx]=null;
+  if (grp==='villain') G.vCards[idx]=null;
+  const el = document.getElementById(id);
+  el.classList.remove('filled');
+  el.innerHTML = `<span class="log-ph" style="font-size:12px">Card ${idx+1}</span>`;
+}
+
+function renderBoard(idx, card) {
+  const ids = ['bf0','bf1','bf2','bt','br'];
+  const el  = document.getElementById(ids[idx]);
+  el.classList.add('filled');
+  el.innerHTML = cardHTML(card);
+}
+
+// ══ Actions ══════════════════════════════════════════════════════
+function act(street, token) {
+  const actor = G.actor[street];
+  const s     = G.sizing[street];
+  let t = token;
+  if (s && (token==='b'||token==='cb'||token==='r')) t = token + s;
+  G.acts[street].push({actor, t});
+  G.sizing[street] = '';
+  // clear size chips for this street
+  document.querySelectorAll(`#sc-${street} .size-chip`).forEach(c => c.classList.remove('on'));
+  renderLog(street);
+}
+
+function undo(street) {
+  G.acts[street].pop();
+  renderLog(street);
+}
+
+function renderLog(street) {
+  const el = document.getElementById('log-'+street);
+  const acts = G.acts[street];
+  if (!acts.length) { el.innerHTML = '<span class="log-ph">กด action...</span>'; return; }
+  el.textContent = acts.map(a => `${a.actor==='Hero'?'H':'V'}:${a.t}`).join(' → ');
+}
+
+function setActor(street, el) {
+  document.querySelectorAll(`#ag-${street} .toggle-btn`).forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  G.actor[street] = el.dataset.a;
+}
+
+function sz(street, val, el) {
+  G.sizing[street] = val;
+  document.querySelectorAll(`#sc-${street} .size-chip`).forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ══ Decision ════════════════════════════════════════════════════
+function setDec(el) {
+  document.querySelectorAll('.dec-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  G.dec = el.dataset.v;
+}
+
+// ══ Save ════════════════════════════════════════════════════════
+function cardStr(cards) {
+  return cards.map(c => c ? c.rank + SUIT_SYM[c.suit] : '?').join('');
+}
+function actStr(street) {
+  const a = G.acts[street];
+  if (!a.length) return '-';
+  return a.map(x => `${x.actor==='Hero'?'':'V:'}${x.t}`).join(' → ');
+}
+function boardPart(s,e) {
+  return G.board.slice(s,e).map(c => c ? c.rank+SUIT_SYM[c.suit] : '?').join(' ');
+}
+
+function saveHand() {
+  const h = {
+    id:      hands.length + 1,
+    ts:      Date.now(),
+    pos:     G.pos,
+    hSt:     document.getElementById('f-hero-st').value  || '?',
+    vSt:     document.getElementById('f-vil-st').value   || '?',
+    blind:   document.getElementById('f-blind').value,
+    ante:    document.getElementById('f-ante').value,
+    read:    document.getElementById('f-read').value,
+    hCards:  cardStr(G.hCards),
+    vCards:  G.vCards.some(Boolean) ? cardStr(G.vCards) : '',
+    pfAct:   actStr('pf'),
+    flop:    boardPart(0,3),
+    fAct:    actStr('flop'),
+    turn:    G.board[3] ? G.board[3].rank+SUIT_SYM[G.board[3].suit] : '',
+    tAct:    actStr('turn'),
+    river:   G.board[4] ? G.board[4].rank+SUIT_SYM[G.board[4].suit] : '',
+    rAct:    actStr('river'),
+    result:  document.getElementById('f-result').value,
+    dec:     G.dec,
+    note:    document.getElementById('f-note').value,
+  };
+  hands.unshift(h);
+  localStorage.setItem('huj_v2', JSON.stringify(hands));
+  toast('บันทึกแล้ว ✓');
+  resetForm();
+}
+
+function resetForm() {
+  G = fresh();
+  ['f-blind','f-ante','f-hero-st','f-vil-st','f-read','f-result','f-note']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['hs0','hs1','vs0','vs1'].forEach((id,i) => {
+    const el=document.getElementById(id);
+    el.classList.remove('filled');
+    el.innerHTML=`<span class="log-ph" style="font-size:12px">Card ${(i%2)+1}</span>`;
+  });
+  ['bf0','bf1','bf2','bt','br'].forEach(id => {
+    const el=document.getElementById(id);
+    if(el) { el.classList.remove('filled'); el.textContent='?'; }
+  });
+  ['pf','flop','turn','river'].forEach(s => {
+    document.getElementById('log-'+s).innerHTML = '<span class="log-ph">กด action...</span>';
+    document.querySelectorAll(`#sc-${s} .size-chip`).forEach(c=>c.classList.remove('on'));
+    document.querySelectorAll(`#ag-${s} .toggle-btn`).forEach((b,i)=>b.classList.toggle('active',i===0));
+  });
+  document.querySelectorAll('.dec-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('[data-pos]').forEach((b,i)=>b.classList.toggle('active',i===0));
+}
+
+// ══ Format ══════════════════════════════════════════════════════
+function fmt(h) {
+  const d = new Date(h.ts).toLocaleString('th-TH',
+    {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
+  const lines = [
+    `#${h.id}  ${d}`,
+    `SETUP:   Hero (${h.pos}, ${h.hSt}bb)  vs  Villain (${h.vSt}bb)`,
+  ];
+  if (h.blind) lines.push(`BLIND:   ${h.blind}${h.ante?' | ANT: '+h.ante:''}`);
+  if (h.read)  lines.push(`READ:    ${h.read}`);
+  lines.push(`HAND:    ${h.hCards}`, ``);
+  lines.push(`PREFLOP: ${h.pfAct}`);
+  if (h.flop)  lines.push(`FLOP:    ${h.flop}  →  ${h.fAct}`);
+  if (h.turn)  lines.push(`TURN:    ${h.turn}  →  ${h.tAct}`);
+  if (h.river) lines.push(`RIVER:   ${h.river}  →  ${h.rAct}`);
+  if (h.vCards) lines.push(`V HAND:  ${h.vCards}`);
+  lines.push(``, `RESULT:  ${h.result||'-'}`);
+  lines.push(`DECISION:[${h.dec?h.dec.toUpperCase():'-'}]`);
+  if (h.note)  lines.push(`NOTE:    ${h.note}`);
+  return lines.join('\n');
+}
+
+// ══ History ═════════════════════════════════════════════════════
+function renderHistory() {
+  const c = document.getElementById('hist-list');
+  if (!hands.length) {
+    c.innerHTML = `<div class="empty">
+      <div class="empty-icon">🃏</div>
+      <p>ยังไม่มี hand ที่บันทึกไว้<br>กลับไปแท็บ บันทึก แล้วกด Save</p>
+    </div>`; return;
+  }
+  const decMap = {ok:{cls:'ok',lbl:'[OK]'}, q:{cls:'q',lbl:'[?]'}, x:{cls:'x',lbl:'[X]'}};
+  c.innerHTML = hands.map((h,i) => {
+    const dm = decMap[h.dec] || {cls:'',lbl:'[-]'};
+    return `
+    <div class="hist-card">
+      <div class="hist-head" onclick="toggleBody(${i})">
+        <div>
+          <div class="hist-num">Hand #${h.id}</div>
+          <div class="hist-prev">${h.hCards} vs ${h.vCards||'??'}  ·  ${h.result||'-'}</div>
+        </div>
+        <div class="hist-badge ${dm.cls}">${dm.lbl}</div>
+      </div>
+      <div class="hist-body" id="hb${i}">${fmt(h)}</div>
+      <div class="hist-foot">
+        <div class="mini-btn" onclick="copyHand(${i})">📋 Copy</div>
+        <div class="mini-btn" style="color:var(--err2)" onclick="delHand(${i})">🗑 ลบ</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleBody(i) {
+  document.getElementById('hb'+i).classList.toggle('open');
+}
+function copyHand(i) {
+  navigator.clipboard.writeText(fmt(hands[i])).then(()=>toast('คัดลอกแล้ว ✓'));
+}
+function delHand(i) {
+  if (!confirm('ลบ hand นี้?')) return;
+  hands.splice(i,1);
+  localStorage.setItem('huj_v2', JSON.stringify(hands));
+  renderHistory();
+}
+
+function exportAll() {
+  if (!hands.length) { alert('ยังไม่มี hand'); return; }
+  const txt = hands.map(h=>fmt(h)).join('\n\n'+'─'.repeat(40)+'\n\n');
+  const a   = Object.assign(document.createElement('a'),{
+    href: URL.createObjectURL(new Blob([txt],{type:'text/plain'})),
+    download: 'hu_hands.txt',
+  });
+  a.click();
+}
+
+// ══ Toast ════════════════════════════════════════════════════════
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>
