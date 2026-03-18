@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Hand Journal">
+<meta name="theme-color" content="#0E0E0F">
+<link rel="manifest" id="pwa-manifest">
+<title>Hand Journal · Peace of Mind Trader</title>
+<script>
+const _m={name:'Hand Journal',short_name:'Hand Journal',start_url:'.',display:'standalone',
+  background_color:'#0E0E0F',theme_color:'#0E0E0F'};
+const _b=new Blob([JSON.stringify(_m)],{type:'application/json'});
+document.getElementById('pwa-manifest').href=URL.createObjectURL(_b);
+</script>
+<style>
+/* ═══ THEMES ════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg:#0E0E0F; --surf:#18181B; --card:#1F1F23; --raised:#26262C;
+  --b1:#2A2A30; --b2:#35353D; --text:#E8E8EA; --sub:#8A8A96; --muted:#525260;
+  --acc:#C9963A; --acc2:#E6B84A; --acc-t:#000;
+  --ok-bg:#1A3A28; --ok:#4CAF64;
+  --wn-bg:#2E2510; --wn:#D4A030;
+  --er-bg:#2A1010; --er:#C94040;
+  --sp:#E8E8EA; --ht:#E05050; --dm:#4A90D8; --cl:#6BBF6B;
+  --modal:rgba(0,0,0,.78); --toast-bg:#2A5A38;
+  --code-bg:#111116; --code-t:#E8E8EA; --code-k:#C9963A;
+}
+[data-theme="minimal"] {
+  --bg:#F4F4F2; --surf:#FFF; --card:#F9F9F7; --raised:#FFF;
+  --b1:#E0E0DC; --b2:#CACAC4; --text:#1A1A1A; --sub:#6A6A6A; --muted:#AAAAAA;
+  --acc:#111; --acc2:#333; --acc-t:#FFF;
+  --ok-bg:#EBF5EE; --ok:#2A7A3A;
+  --wn-bg:#FDF6E8; --wn:#8A6010;
+  --er-bg:#FDF0F0; --er:#AA2020;
+  --sp:#111; --ht:#CC2222; --dm:#1A55AA; --cl:#1A7A1A;
+  --modal:rgba(0,0,0,.4); --toast-bg:#2A5A38;
+  --code-bg:#1A1A1E; --code-t:#E8E8EA; --code-k:#C9963A;
+}
+
+/* ═══ BASE ══════════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;transition:background .2s,color .2s}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto}
+
+/* ═══ TOPBAR ════════════════════════════════════════════════════ */
+#topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px 8px;background:var(--surf);border-bottom:1px solid var(--b1);flex-shrink:0}
+#topbar h1{font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--acc)}
+#topbar small{font-size:9px;color:var(--muted);display:block;margin-top:1px}
+.top-right{display:flex;gap:6px}
+#theme-pill{display:flex;border:1px solid var(--b2);border-radius:20px;overflow:hidden;background:var(--card)}
+.t-opt{padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.05em;cursor:pointer;
+  color:var(--muted);transition:all .2s;user-select:none}
+.t-opt.on{background:var(--acc);color:var(--acc-t)}
+.icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--b2);
+  background:var(--card);color:var(--text);font-size:14px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+
+/* ═══ TABS ══════════════════════════════════════════════════════ */
+#tabs{display:flex;background:var(--surf);border-bottom:1px solid var(--b1);flex-shrink:0}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.03em}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* ═══ CONTENT ═══════════════════════════════════════════════════ */
+#content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel{display:none;padding:12px 12px 110px}
+.panel.on{display:block}
+
+/* ═══ FORM ELEMENTS ═════════════════════════════════════════════ */
+.label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px;display:block;padding-left:1px}
+.field{background:var(--card);border:1px solid var(--b2);border-radius:8px;
+  padding:10px 12px;width:100%;color:var(--text);font-size:15px;
+  outline:none;-webkit-appearance:none;transition:border-color .2s}
+.field:focus{border-color:var(--acc)}
+input[type=number].field::-webkit-inner-spin-button{-webkit-appearance:none}
+.row{display:flex;gap:8px}.col{flex:1}
+.sec{margin-bottom:12px}
+
+/* ═══ MODE TOGGLE ═══════════════════════════════════════════════ */
+#mode-toggle{display:flex;background:var(--card);border:1px solid var(--b2);
+  border-radius:10px;overflow:hidden;margin-bottom:14px}
+.mode-btn{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:700;
+  cursor:pointer;color:var(--muted);transition:all .15s;letter-spacing:.03em;user-select:none}
+.mode-btn small{display:block;font-size:9px;font-weight:400;margin-top:2px;opacity:.7}
+.mode-btn.on{background:var(--acc);color:var(--acc-t)}
+
+/* ═══ HERO CARD PICKER ══════════════════════════════════════════ */
+.card-row{display:flex;gap:8px}
+.cslot{flex:1;height:60px;border:2px dashed var(--b2);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;cursor:pointer;position:relative;transition:all .15s}
+.cslot.filled{border-style:solid;background:var(--raised)}
+.cslot .x{position:absolute;top:3px;right:5px;font-size:10px;color:var(--muted)}
+.cs{color:var(--sp)}.ch{color:var(--ht)}.cd{color:var(--dm)}.cc{color:var(--cl)}
+
+/* ═══ PREFLOP HYBRID ════════════════════════════════════════════ */
+.chip-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.chip{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;
+  background:var(--surf);border:1px solid var(--b2);cursor:pointer;
+  color:var(--sub);transition:all .15s;user-select:none;font-family:'Courier New',monospace}
+.chip:active{opacity:.7}
+.chip.a{color:var(--acc);border-color:var(--acc)}
+.chip.b{color:#50A8CF}
+.chip.s{color:var(--acc2)}
+.chip.d{color:var(--er)}
+.pf-area{background:var(--card);border:1px solid var(--b2);border-radius:8px;
+  padding:10px 12px;width:100%;color:var(--text);font-size:13px;
+  font-family:'Courier New',monospace;line-height:1.7;resize:none;
+  outline:none;min-height:52px;transition:border-color .2s}
+.pf-area:focus{border-color:var(--acc)}
+.pf-area::placeholder{color:var(--muted);font-family:inherit}
+.pf-hint{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ═══ BOARD CARDS ═══════════════════════════════════════════════ */
+.board-row{display:flex;gap:5px}
+.bcard{flex:1;height:44px;background:var(--surf);border:1.5px dashed var(--b2);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted)}
+.bcard.filled{border-style:solid;background:var(--card)}
+.bcard.sm{flex:0 0 56px}
+
+/* ═══ ACTION BUTTONS (post-flop) ════════════════════════════════ */
+.act-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:6px}
+.abtn{padding:9px 4px;text-align:center;border-radius:6px;
+  background:var(--card);border:1px solid var(--b2);
+  font-size:11px;font-weight:700;cursor:pointer;color:var(--sub);
+  letter-spacing:.02em;transition:all .15s;user-select:none}
+.abtn:active{opacity:.7}
+.sz-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.szbtn{padding:5px 10px;border-radius:20px;font-size:10.5px;font-weight:700;
+  background:var(--surf);border:1px solid var(--b2);cursor:pointer;
+  color:var(--sub);transition:all .15s;user-select:none}
+.szbtn.on{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.actor-toggle{display:flex;background:var(--card);border:1px solid var(--b2);
+  border-radius:8px;overflow:hidden;height:34px}
+.actor-btn{flex:1;font-size:12px;font-weight:700;cursor:pointer;
+  color:var(--muted);text-align:center;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;user-select:none}
+.actor-btn.on{background:var(--acc);color:var(--acc-t)}
+.act-log{background:var(--surf);border:1px solid var(--b1);
+  border-radius:8px;padding:8px 12px;min-height:34px;
+  font-size:12px;font-family:'Courier New',monospace;color:var(--text);
+  word-break:break-all;line-height:1.5}
+.aph{color:var(--muted)}
+
+/* ═══ STREET COLLAPSIBLE ════════════════════════════════════════ */
+.street-head{display:flex;align-items:center;gap:8px;padding:8px 0 6px;cursor:pointer}
+.street-label{font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.street-cards{display:flex;gap:5px;flex:1}
+.street-preview{font-size:11px;font-family:monospace;color:var(--sub);margin-left:auto}
+.chevron{font-size:10px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.street-body{padding-bottom:8px;display:none}
+.street-body.open{display:block}
+.street-div{height:1px;background:var(--b1);margin:4px 0}
+
+/* ═══ RESULT & DECISION ═════════════════════════════════════════ */
+.result-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}
+.result-input{flex:1}
+.dec-row{display:flex;gap:6px}
+.dec-btn{flex:1;padding:11px 4px;text-align:center;border-radius:8px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  border:1.5px solid var(--b2);background:var(--card);
+  color:var(--muted);transition:all .2s;user-select:none}
+.dec-btn small{display:block;font-size:9px;font-weight:400;margin-top:2px}
+.dec-btn[data-v="ok"].on{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.dec-btn[data-v="q"].on {background:var(--wn-bg);border-color:var(--wn);color:var(--wn)}
+.dec-btn[data-v="x"].on {background:var(--er-bg);border-color:var(--er);color:var(--er)}
+
+/* ═══ DETAILS EXPANDER ══════════════════════════════════════════ */
+.expand-btn{width:100%;padding:10px;text-align:center;border:1px dashed var(--b2);
+  border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);
+  cursor:pointer;background:transparent;margin-bottom:8px;transition:all .2s}
+.expand-btn:hover{border-color:var(--acc);color:var(--acc)}
+.details-body{display:none}
+.details-body.open{display:block}
+
+/* ═══ SAVE BUTTON ═══════════════════════════════════════════════ */
+#save-btn{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;padding:16px;
+  background:var(--acc);color:var(--acc-t);
+  font-size:15px;font-weight:800;letter-spacing:.06em;
+  border:none;cursor:pointer;display:none;transition:background .25s,color .25s}
+#save-btn.show{display:block}
+
+/* ═══ MULTIWAY POSITIONS ════════════════════════════════════════ */
+.n-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.n-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--b2);
+  background:var(--card);font-size:13px;font-weight:700;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.n-btn.on{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.pos-item{background:var(--card);border:1px solid var(--b2);
+  border-radius:10px;margin-bottom:8px;overflow:hidden}
+.pos-item.acted{border-color:var(--b2)}
+.pos-head2{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
+.pos-badge{font-size:11px;font-weight:800;letter-spacing:.04em;
+  padding:3px 10px;border-radius:20px;flex-shrink:0}
+.pos-UTG {background:#3A2A5A;color:#B08AE8}
+.pos-UTG1{background:#2A2A5A;color:#8A9AE8}
+.pos-LJ  {background:#1E3818;color:#7ABA7A;border:1px solid #3A6A2A}
+.pos-HJ  {background:#5A3A10;color:#E8A040}
+.pos-CO  {background:#5A2010;color:#E85040}
+.pos-BTN {background:#143214;color:#50CF50;border:1px solid #267A26}
+.pos-SB  {background:#4A3A10;color:#D4A030}
+.pos-BB  {background:#1A3A4A;color:#50A8CF}
+.hero-tag{font-size:9px;font-weight:700;background:var(--acc);
+  color:var(--acc-t);padding:2px 6px;border-radius:10px;flex-shrink:0}
+.pos-prev{margin-left:auto;font-size:11px;font-family:monospace;color:var(--sub)}
+.pos-body2{padding:0 12px 10px;display:none}
+.pos-body2.open{display:block}
+.pos-inp{background:var(--surf);border:1px solid var(--b2);border-radius:6px;
+  padding:8px 10px;width:100%;color:var(--text);font-size:13px;
+  font-family:'Courier New',monospace;outline:none;transition:border-color .2s;
+  margin-bottom:6px}
+.pos-inp:focus{border-color:var(--acc)}
+.pos-inp::placeholder{color:var(--muted);font-size:11px}
+.hero-check-row{display:flex;align-items:center;gap:6px;cursor:pointer;margin-top:2px}
+.hchk{width:16px;height:16px;border:1.5px solid var(--b2);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  background:var(--card);transition:all .15s;flex-shrink:0}
+.hchk.on{background:var(--acc);border-color:var(--acc);color:var(--acc-t)}
+.hchk-lbl{font-size:10px;color:var(--sub)}
+.mw-hcards{display:flex;gap:6px;margin-top:8px}
+.mwhslot{flex:1;height:44px;border:1.5px dashed var(--b2);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;cursor:pointer;position:relative;transition:all .15s}
+.mwhslot.filled{border-style:solid;background:var(--raised)}
+.shared-chips{background:var(--surf);border:1px solid var(--b1);
+  border-radius:8px;padding:8px 10px;margin-bottom:10px}
+.shared-chips .label{margin-bottom:4px}
+.mw-summary{background:var(--surf);border:1px solid var(--b1);
+  border-radius:8px;padding:10px 12px;
+  font-size:12px;font-family:'Courier New',monospace;
+  color:var(--text);line-height:1.8;min-height:36px}
+.mw-summary .k{color:var(--acc);font-weight:700}
+
+/* ═══ POKER TABLE ═══════════════════════════════════════════════ */
+.table-wrap{position:relative;width:100%;margin-bottom:12px;user-select:none}
+.table-svg{width:100%;display:block;overflow:visible}
+.felt-outer{fill:#1A1A1E;stroke:#0A0A0C;stroke-width:4}
+.felt-mid  {fill:#1C3A28;stroke:#122A1C;stroke-width:2}
+.felt-inner{fill:#1E4030;stroke:#2A6040;stroke-width:1}
+.felt-logo {font-size:11px;font-weight:700;fill:rgba(255,255,255,.12);text-anchor:middle;dominant-baseline:middle;letter-spacing:.15em}
+/* dealer button */
+.dbtn-circle{fill:#E8D050;stroke:#B89830;stroke-width:1.5}
+.dbtn-txt   {font-size:8px;font-weight:800;fill:#5A3A08;text-anchor:middle;dominant-baseline:middle}
+/* seat badge — matches image style */
+.seat-g{cursor:pointer}
+.seat-badge-bg{rx:5;ry:5}
+.seat-badge-txt{font-size:10px;font-weight:800;text-anchor:middle;dominant-baseline:middle;letter-spacing:.02em}
+.seat-sub-txt  {font-size:6.5px;text-anchor:middle;dominant-baseline:middle;font-weight:500;opacity:.85}
+.seat-act-txt  {font-size:6.5px;text-anchor:middle;dominant-baseline:middle;font-family:'Courier New',monospace;font-weight:600}
+.seat-cards-txt{font-size:7px;text-anchor:middle;dominant-baseline:middle;font-weight:700}
+/* glow ring for active/hero */
+.seat-glow{fill:none;stroke-width:2.5;stroke-dasharray:none;opacity:0}
+.seat-glow.active-ring{opacity:1;stroke:#E6B84A}
+.seat-glow.hero-ring{opacity:.8;stroke:#C9963A;stroke-dasharray:3,2}
+/* legend row */
+.tbl-legend{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;
+  margin-top:4px;margin-bottom:8px}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--sub)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* position input panel below table */
+.pos-panel{background:var(--card);border:1px solid var(--b2);
+  border-radius:10px;padding:12px;margin-bottom:8px;display:none}
+.pos-panel.open{display:block}
+.pos-panel-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pos-panel-badge{font-size:12px;font-weight:800;letter-spacing:.04em;
+  padding:4px 12px;border-radius:6px;flex-shrink:0}
+
+</style>
+
+<style>
+/* ═══ HISTORY ═══════════════════════════════════════════════════ */
+.hcard{background:var(--card);border:1px solid var(--b2);
+  border-radius:12px;margin-bottom:10px;overflow:hidden}
+.hhead{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;cursor:pointer}
+.hnum{font-size:11px;font-weight:700;color:var(--acc)}
+.hprev{font-size:12px;color:var(--sub);font-family:monospace;margin-top:2px}
+.hdec{font-size:12px;font-weight:700}
+.hdec.ok{color:var(--ok)}.hdec.q{color:var(--wn)}.hdec.x{color:var(--er)}
+.hbody{display:none;padding:0 12px 10px;border-top:1px solid var(--b1);
+  font-size:11.5px;font-family:monospace;color:var(--sub);
+  white-space:pre-wrap;line-height:1.8}
+.hbody.open{display:block}
+.hfoot{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--b1)}
+.mini-btn{flex:1;padding:7px;text-align:center;border-radius:6px;
+  font-size:11px;font-weight:700;cursor:pointer;
+  background:var(--surf);border:1px solid var(--b2);color:var(--sub)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+
+/* ═══ ABOUT ═════════════════════════════════════════════════════ */
+.about-card{background:var(--card);border:1px solid var(--b2);
+  border-radius:12px;padding:18px;margin-bottom:12px}
+.about-card h3{font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+
+/* ═══ MODAL ═════════════════════════════════════════════════════ */
+#overlay{position:fixed;inset:0;background:var(--modal);
+  z-index:200;display:none;align-items:flex-end;justify-content:center}
+#overlay.open{display:flex}
+#modal{background:var(--surf);border-radius:20px 20px 0 0;
+  padding:14px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal-title{font-size:12px;font-weight:700;color:var(--muted);
+  text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em}
+.rank-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+.suit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.pick-btn{padding:10px 4px;text-align:center;border-radius:6px;
+  background:var(--card);border:1px solid var(--b1);
+  font-size:13px;font-weight:700;cursor:pointer;color:var(--sub);transition:all .15s}
+.pick-btn.ron{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.sS{color:var(--sp)}.sH{color:var(--ht)}.sD{color:var(--dm)}.sC{color:var(--cl)}
+.pick-btn.sS.son{background:#1A1E2E;border-color:var(--sp)}
+.pick-btn.sH.son{background:#2A1818;border-color:var(--ht)}
+.pick-btn.sD.son{background:#141C2C;border-color:var(--dm)}
+.pick-btn.sC.son{background:#141E14;border-color:var(--cl)}
+[data-theme="minimal"] .pick-btn.sS.son{background:#E8E8F0;border-color:var(--sp)}
+[data-theme="minimal"] .pick-btn.sH.son{background:#F5E0E0;border-color:var(--ht)}
+[data-theme="minimal"] .pick-btn.sD.son{background:#E0E8F5;border-color:var(--dm)}
+[data-theme="minimal"] .pick-btn.sC.son{background:#E0F0E0;border-color:var(--cl)}
+.confirm-btn{width:100%;margin-top:12px;padding:14px;
+  background:var(--acc);color:var(--acc-t);
+  border:none;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer}
+
+/* ═══ CONCEPT TAGS ══════════════════════════════════════════════ */
+.tag-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.ctag{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--surf);border:1px solid var(--b2);cursor:pointer;
+  color:var(--sub);transition:all .15s;user-select:none}
+.ctag.on{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+
+/* ═══ REASONING BOX ═════════════════════════════════════════════ */
+.reason-box{background:var(--wn-bg);border:1px solid var(--wn);
+  border-radius:8px;padding:10px 12px;margin-top:8px;display:none}
+.reason-box.open{display:block}
+.reason-label{font-size:11px;font-weight:700;color:var(--wn);margin-bottom:6px;display:block}
+.reason-ta{background:var(--card);border:1px solid var(--wn);border-radius:6px;
+  padding:8px 10px;width:100%;color:var(--text);font-size:13px;
+  line-height:1.5;resize:none;outline:none}
+.reason-ta:focus{border-color:var(--acc)}
+
+/* ═══ COLORED HISTORY ═══════════════════════════════════════════ */
+.hbody{display:none;padding:10px 12px 6px;border-top:1px solid var(--b1);font-size:12px;line-height:1.9}
+.hbody.open{display:block}
+.hl{display:flex;gap:6px;margin-bottom:1px;align-items:baseline}
+.hl-key{font-size:10px;font-weight:700;letter-spacing:.06em;
+  flex-shrink:0;width:72px;text-align:right;font-family:monospace;padding-top:1px}
+.hl-val{font-size:12px;color:var(--text);font-family:monospace;word-break:break-all;line-height:1.6}
+.hk-setup {color:var(--sub)} .hk-pf{color:#50A8CF}
+.hk-flop  {color:#50CF80}    .hk-turn{color:#E8A040}
+.hk-river {color:#E06060}    .hk-result{color:var(--acc)}
+.hk-dec   {color:var(--muted)} .hk-note{color:var(--wn)}
+.hk-tags  {color:var(--acc)}   .hk-reason{color:var(--wn)}
+.res-pos{color:var(--ok)}.res-neg{color:var(--er)}.res-neu{color:var(--sub)}
+.h-tag-inline{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;
+  background:var(--card);border:1px solid var(--b2);color:var(--sub);margin-right:3px}
+
+/* ═══ VILLAIN NOTES ═════════════════════════════════════════════ */
+.vcard{background:var(--card);border:1px solid var(--b2);
+  border-radius:10px;margin-bottom:10px;overflow:hidden}
+.vcard-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
+.vcard-name{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.vcard-cnt{font-size:10px;color:var(--muted);background:var(--surf);
+  padding:2px 8px;border-radius:10px;flex-shrink:0}
+.vcard-body{display:none;padding:0 12px 10px;border-top:1px solid var(--b1)}
+.vcard-body.open{display:block}
+.vnote-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1)}
+.vnote-item:last-child{border-bottom:none}
+.vnote-ts{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:1px}
+.vnote-txt{font-size:12px;color:var(--text);flex:1;line-height:1.5}
+.vnote-del{font-size:11px;color:var(--er);cursor:pointer;flex-shrink:0}
+.vn-input-row{display:flex;gap:6px;margin-top:10px}
+.vn-input-row input{flex:1;font-size:12px}
+.vn-add-btn{padding:8px 14px;background:var(--acc);color:var(--acc-t);
+  border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+
+/* ═══ SESSION STATS ═════════════════════════════════════════════ */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-box{background:var(--card);border:1px solid var(--b2);
+  border-radius:10px;padding:12px 8px;text-align:center}
+.stat-num{font-size:22px;font-weight:800;color:var(--acc);line-height:1.1}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em;text-transform:uppercase}
+.dec-stat-row{display:flex;gap:6px;margin-bottom:12px}
+.dec-stat{flex:1;padding:10px 4px;text-align:center;border-radius:8px}
+.dec-stat.ok{background:var(--ok-bg);color:var(--ok)}
+.dec-stat.q {background:var(--wn-bg);color:var(--wn)}
+.dec-stat.x {background:var(--er-bg);color:var(--er)}
+.dec-stat-n{font-size:20px;font-weight:800;display:block}
+.dec-stat-l{font-size:10px}
+.tfreq-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.tfreq-name{font-size:11px;font-weight:600;color:var(--text);width:70px;flex-shrink:0}
+.tfreq-bar{flex:1;height:6px;background:var(--b1);border-radius:3px;overflow:hidden}
+.tfreq-fill{height:100%;background:var(--acc);border-radius:3px}
+.tfreq-cnt{font-size:11px;color:var(--muted);flex-shrink:0}
+
+/* ═══ GUIDE ═════════════════════════════════════════════════════ */
+.guide-q{font-size:13px;font-weight:700;color:var(--text);
+  padding:10px 12px;background:var(--card);border:1px solid var(--b2);
+  border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:4px;user-select:none}
+.guide-q.open{border-radius:8px 8px 0 0;margin-bottom:0}
+.guide-a{display:none;padding:10px 14px;background:var(--surf);
+  border:1px solid var(--b2);border-top:none;border-radius:0 0 8px 8px;
+  font-size:12px;color:var(--sub);line-height:1.9;margin-bottom:6px}
+.guide-a.open{display:block}
+.guide-a b{color:var(--text)}
+.guide-a code{background:var(--card);padding:1px 5px;border-radius:3px;
+  font-family:monospace;font-size:11px;color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Topbar -->
+<div id="topbar">
+  <div>
+    <h1>HAND JOURNAL</h1>
+    <small>พีร์ บุญชนะวิวัฒน์ · Peace of Mind Trader</small>
+  </div>
+  <div class="top-right">
+    <div id="theme-pill">
+      <div class="t-opt on" data-t="dark"    onclick="setTheme('dark')">DARK</div>
+      <div class="t-opt"    data-t="minimal" onclick="setTheme('minimal')">MINIMAL</div>
+    </div>
+    <div class="icon-btn" onclick="exportAll()">📤</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div id="tabs">
+  <div class="tab on" onclick="go('rec')">📝 บันทึก</div>
+  <div class="tab"    onclick="go('hist')">📚 ประวัติ</div>
+  <div class="tab"    onclick="go('villain')">👤 Villain</div>
+  <div class="tab"    onclick="go('session')">📊 Session</div>
+  <div class="tab"    onclick="go('about')">🃏 คู่มือ</div>
+</div>
+
+<div id="content">
+
+<!-- ══════════════════════════════════════════════
+     RECORD PANEL
+══════════════════════════════════════════════ -->
+<div class="panel on" id="panel-rec">
+
+  <!-- Mode Toggle -->
+  <div id="mode-toggle">
+    <div class="mode-btn on" data-m="hu"    onclick="setMode('hu',this)">
+      HU<small>Heads-Up</small>
+    </div>
+    <div class="mode-btn"    data-m="multi" onclick="setMode('multi',this)">
+      MULTI<small>Multiway</small>
+    </div>
+  </div>
+
+  <!-- ── HU MODE ─────────────────────────────── -->
+  <div id="hu-form">
+
+    <!-- Hero Cards — PRIMARY -->
+    <div class="sec">
+      <div class="label">🂠 Hero Hole Cards</div>
+      <div class="card-row">
+        <div class="cslot" id="hs0" onclick="openPicker('hero',0)">
+          <span style="color:var(--muted);font-size:13px">Card 1</span>
+        </div>
+        <div class="cslot" id="hs1" onclick="openPicker('hero',1)">
+          <span style="color:var(--muted);font-size:13px">Card 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preflop Hybrid -->
+    <div class="sec">
+      <div class="label">Preflop</div>
+      <!-- Actor chips -->
+      <div class="chip-bar">
+        <div class="chip a" onclick="pfIns('H:')">H:</div>
+        <div class="chip a" onclick="pfIns('V:')">V:</div>
+        <div class="chip b" onclick="pfIns(' → ')">→</div>
+        <div class="chip"   onclick="pfIns('r')">r</div>
+        <div class="chip"   onclick="pfIns('c')">c</div>
+        <div class="chip"   onclick="pfIns('f')">f</div>
+        <div class="chip"   onclick="pfIns('3b')">3b</div>
+        <div class="chip"   onclick="pfIns('4b')">4b</div>
+        <div class="chip"   onclick="pfIns('5b')">5b</div>
+        <div class="chip"   onclick="pfIns('cb')">cb</div>
+        <div class="chip d" onclick="pfIns('shv')">shv</div>
+        <div class="chip d" onclick="pfIns('ai')">ai</div>
+      </div>
+      <div class="chip-bar">
+        <div class="chip s" onclick="pfIns('2x')">2x</div>
+        <div class="chip s" onclick="pfIns('2.5x')">2.5x</div>
+        <div class="chip s" onclick="pfIns('3x')">3x</div>
+        <div class="chip s" onclick="pfIns('6x')">6x</div>
+        <div class="chip s" onclick="pfIns('8x')">8x</div>
+        <div class="chip s" onclick="pfIns('10x')">10x</div>
+        <div class="chip s" onclick="pfIns('9.25')">9.25</div>
+        <div class="chip s" onclick="pfIns('12')">12</div>
+        <div class="chip s" onclick="pfIns('20')">20</div>
+        <div class="chip s" onclick="pfIns('25')">25</div>
+      </div>
+      <textarea class="pf-area" id="pf-text" rows="2"
+        placeholder="H:r2.5x → V:3b9x → H:4b22 → V:c"
+        autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+      <div class="pf-hint">H = Hero · V = Villain · กดชิปเพื่อแทรก หรือพิมพ์เองได้เลย</div>
+    </div>
+
+    <!-- Streets (collapsible) -->
+    <div class="sec" id="streets-section">
+
+      <!-- FLOP -->
+      <div class="street-div"></div>
+      <div class="street-head" onclick="toggleStreet('flop')">
+        <span class="street-label">Flop</span>
+        <div class="street-cards" id="flop-cards-preview">
+          <div class="bcard" id="bf0" onclick="stopAnd(event,()=>openPicker('board',0))">?</div>
+          <div class="bcard" id="bf1" onclick="stopAnd(event,()=>openPicker('board',1))">?</div>
+          <div class="bcard" id="bf2" onclick="stopAnd(event,()=>openPicker('board',2))">?</div>
+        </div>
+        <span class="street-preview" id="prev-flop"></span>
+        <span class="chevron" id="chev-flop">▼</span>
+      </div>
+      <div class="street-body" id="body-flop">
+        <div class="act-log" id="log-flop"><span class="aph">action...</span></div>
+        <div class="act-grid" style="margin-top:6px">
+          <div class="abtn" onclick="pAct('flop','x')">x check</div>
+          <div class="abtn" onclick="pAct('flop','b')">b bet</div>
+          <div class="abtn" onclick="pAct('flop','c')">c call</div>
+          <div class="abtn" onclick="pAct('flop','f')">f fold</div>
+          <div class="abtn" onclick="pAct('flop','r')">r raise</div>
+          <div class="abtn" onclick="pAct('flop','cb')">cb c-bet</div>
+          <div class="abtn" onclick="pAct('flop','shv')">shv jam</div>
+          <div class="abtn" onclick="pUndo('flop')" style="color:var(--er)">↩</div>
+        </div>
+        <div class="sz-bar" id="sz-flop">
+          <div class="szbtn" onclick="pSz('flop','33',this)">b33</div>
+          <div class="szbtn" onclick="pSz('flop','50',this)">b50</div>
+          <div class="szbtn" onclick="pSz('flop','75',this)">b75</div>
+          <div class="szbtn" onclick="pSz('flop','100',this)">b100</div>
+          <div class="szbtn" onclick="pSz('flop','150',this)">b150</div>
+          <input class="field" id="sz-custom-flop" placeholder="custom" type="text"
+            style="width:58px;padding:4px 8px;font-size:11px;height:28px"
+            oninput="pSzCustom('flop',this.value)">
+        </div>
+        <div class="actor-toggle" id="ag-flop">
+          <div class="actor-btn on" data-a="Hero"    onclick="pActor('flop',this)">Hero</div>
+          <div class="actor-btn"    data-a="Villain" onclick="pActor('flop',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- TURN -->
+      <div class="street-div"></div>
+      <div class="street-head" onclick="toggleStreet('turn')">
+        <span class="street-label">Turn</span>
+        <div class="bcard sm" id="bt" onclick="stopAnd(event,()=>openPicker('board',3))" style="flex:0 0 48px;height:36px">?</div>
+        <span class="street-preview" id="prev-turn"></span>
+        <span class="chevron" id="chev-turn">▼</span>
+      </div>
+      <div class="street-body" id="body-turn">
+        <div class="act-log" id="log-turn"><span class="aph">action...</span></div>
+        <div class="act-grid" style="margin-top:6px">
+          <div class="abtn" onclick="pAct('turn','x')">x check</div>
+          <div class="abtn" onclick="pAct('turn','b')">b bet</div>
+          <div class="abtn" onclick="pAct('turn','c')">c call</div>
+          <div class="abtn" onclick="pAct('turn','f')">f fold</div>
+          <div class="abtn" onclick="pAct('turn','r')">r raise</div>
+          <div class="abtn" onclick="pAct('turn','shv')">shv jam</div>
+          <div class="abtn" onclick="pAct('turn','ai')">ai</div>
+          <div class="abtn" onclick="pUndo('turn')" style="color:var(--er)">↩</div>
+        </div>
+        <div class="sz-bar" id="sz-turn">
+          <div class="szbtn" onclick="pSz('turn','33',this)">b33</div>
+          <div class="szbtn" onclick="pSz('turn','50',this)">b50</div>
+          <div class="szbtn" onclick="pSz('turn','75',this)">b75</div>
+          <div class="szbtn" onclick="pSz('turn','100',this)">b100</div>
+          <div class="szbtn" onclick="pSz('turn','150',this)">b150</div>
+          <input class="field" id="sz-custom-turn" placeholder="custom" type="text"
+            style="width:58px;padding:4px 8px;font-size:11px;height:28px"
+            oninput="pSzCustom('turn',this.value)">
+        </div>
+        <div class="actor-toggle" id="ag-turn">
+          <div class="actor-btn on" data-a="Hero"    onclick="pActor('turn',this)">Hero</div>
+          <div class="actor-btn"    data-a="Villain" onclick="pActor('turn',this)">Villain</div>
+        </div>
+      </div>
+
+      <!-- RIVER -->
+      <div class="street-div"></div>
+      <div class="street-head" onclick="toggleStreet('river')">
+        <span class="street-label">River</span>
+        <div class="bcard sm" id="br" onclick="stopAnd(event,()=>openPicker('board',4))" style="flex:0 0 48px;height:36px">?</div>
+        <span class="street-preview" id="prev-river"></span>
+        <span class="chevron" id="chev-river">▼</span>
+      </div>
+      <div class="street-body" id="body-river">
+        <div class="act-log" id="log-river"><span class="aph">action...</span></div>
+        <div class="act-grid" style="margin-top:6px">
+          <div class="abtn" onclick="pAct('river','x')">x check</div>
+          <div class="abtn" onclick="pAct('river','b')">b bet</div>
+          <div class="abtn" onclick="pAct('river','c')">c call</div>
+          <div class="abtn" onclick="pAct('river','f')">f fold</div>
+          <div class="abtn" onclick="pAct('river','r')">r raise</div>
+          <div class="abtn" onclick="pAct('river','shv')">shv jam</div>
+          <div class="abtn" onclick="pAct('river','ai')">ai</div>
+          <div class="abtn" onclick="pUndo('river')" style="color:var(--er)">↩</div>
+        </div>
+        <div class="sz-bar" id="sz-river">
+          <div class="szbtn" onclick="pSz('river','33',this)">b33</div>
+          <div class="szbtn" onclick="pSz('river','50',this)">b50</div>
+          <div class="szbtn" onclick="pSz('river','75',this)">b75</div>
+          <div class="szbtn" onclick="pSz('river','100',this)">b100</div>
+          <div class="szbtn" onclick="pSz('river','150',this)">b150</div>
+          <input class="field" id="sz-custom-river" placeholder="custom" type="text"
+            style="width:58px;padding:4px 8px;font-size:11px;height:28px"
+            oninput="pSzCustom('river',this.value)">
+        </div>
+        <div class="actor-toggle" id="ag-river">
+          <div class="actor-btn on" data-a="Hero"    onclick="pActor('river',this)">Hero</div>
+          <div class="actor-btn"    data-a="Villain" onclick="pActor('river',this)">Villain</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result + Decision — PRIMARY -->
+    <div class="sec" style="margin-top:10px">
+      <div class="result-row">
+        <div class="result-input">
+          <div class="label">Result +/- (bb)</div>
+          <input class="field" id="f-result" placeholder="+18 หรือ -22" type="text">
+        </div>
+      </div>
+      <div class="label">Decision</div>
+      <div class="dec-row">
+        <div class="dec-btn" data-v="ok" onclick="setDec(this)">[OK]<small>ถูกต้อง</small></div>
+        <div class="dec-btn" data-v="q"  onclick="setDec(this)">[?]<small>ไม่แน่ใจ</small></div>
+        <div class="dec-btn" data-v="x"  onclick="setDec(this)">[X]<small>ผิดพลาด</small></div>
+      </div>
+      <!-- Reasoning box — shows when [?] or [X] -->
+      <div class="reason-box" id="reason-box">
+        <span class="reason-label">⚠️ ทำไมถึงตัดสินใจแบบนั้น? อะไรที่ควรทำแทน?</span>
+        <textarea class="reason-ta" id="f-reason" rows="2"
+          placeholder="เช่น: คิดว่า V จะ fold แต่จริงๆ V มี nut flush draw ทำให้ fold EV เป็นลบ..."></textarea>
+      </div>
+    </div>
+
+    <!-- Concept Tags -->
+    <div class="sec">
+      <div class="label">Concept Tags <span style="font-weight:400;color:var(--muted)">(กดเลือกได้หลายอัน)</span></div>
+      <div class="tag-bar" id="tag-bar">
+        <div class="ctag" onclick="toggleTag(this,'c-bet')">c-bet</div>
+        <div class="ctag" onclick="toggleTag(this,'3bet pot')">3bet pot</div>
+        <div class="ctag" onclick="toggleTag(this,'4bet pot')">4bet pot</div>
+        <div class="ctag" onclick="toggleTag(this,'single raised')">single raised</div>
+        <div class="ctag" onclick="toggleTag(this,'bluff')">bluff</div>
+        <div class="ctag" onclick="toggleTag(this,'value bet')">value bet</div>
+        <div class="ctag" onclick="toggleTag(this,'hero call')">hero call</div>
+        <div class="ctag" onclick="toggleTag(this,'river bluff')">river bluff</div>
+        <div class="ctag" onclick="toggleTag(this,'ICM')">ICM</div>
+        <div class="ctag" onclick="toggleTag(this,'push/fold')">push/fold</div>
+        <div class="ctag" onclick="toggleTag(this,'limp pot')">limp pot</div>
+        <div class="ctag" onclick="toggleTag(this,'squeeze')">squeeze</div>
+        <div class="ctag" onclick="toggleTag(this,'trap')">trap</div>
+        <div class="ctag" onclick="toggleTag(this,'float')">float</div>
+      </div>
+    </div>
+
+    <!-- Expand: Details -->
+    <button class="expand-btn" id="expand-btn" onclick="toggleDetails()">
+      + เพิ่มรายละเอียด (Stack, Blind, Read, Note, Villain Hand)
+    </button>
+    <div class="details-body" id="details-body">
+      <div class="row sec">
+        <div class="col">
+          <div class="label">Blind Level</div>
+          <input class="field" id="f-blind" placeholder="30k/60k">
+        </div>
+        <div class="col">
+          <div class="label">Ante</div>
+          <input class="field" id="f-ante" placeholder="BB-ant 60k">
+        </div>
+      </div>
+      <div class="row sec">
+        <div class="col">
+          <div class="label">Hero Stack (bb)</div>
+          <input class="field" id="f-hero-st" placeholder="45" type="number">
+        </div>
+        <div class="col">
+          <div class="label">Villain Stack (bb)</div>
+          <input class="field" id="f-vil-st" placeholder="30" type="number">
+        </div>
+      </div>
+      <div class="sec">
+        <div class="label">Hero Position</div>
+        <div class="actor-toggle" id="pos-toggle">
+          <div class="actor-btn on" data-pos="BTN" onclick="setPos(this)">BTN<span style="font-size:9px;font-weight:400"> · Dealer</span></div>
+          <div class="actor-btn"    data-pos="BB"  onclick="setPos(this)">BB</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="label">Villain Read / Tells</div>
+        <input class="field" id="f-read" placeholder="Tight, passive, aggressive...">
+      </div>
+      <div class="sec">
+        <div class="label">Villain Hand (Showdown)</div>
+        <div class="card-row">
+          <div class="cslot" id="vs0" onclick="openPicker('villain',0)">
+            <span style="color:var(--muted);font-size:13px">Card 1</span>
+          </div>
+          <div class="cslot" id="vs1" onclick="openPicker('villain',1)">
+            <span style="color:var(--muted);font-size:13px">Card 2</span>
+          </div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="label">Thought / Lesson</div>
+        <textarea class="field" id="f-note" rows="3" style="resize:none;line-height:1.5"
+          placeholder="ทำไมถึงตัดสินใจแบบนั้น? บทเรียนคืออะไร?"></textarea>
+      </div>
+    </div>
+
+  </div><!-- /hu-form -->
+
+  <!-- ── MULTI MODE ──────────────────────────────── -->
+  <div id="multi-form" style="display:none">
+
+    <div class="sec">
+      <div class="label">จำนวนผู้เล่น</div>
+      <div class="n-bar" id="n-bar">
+        <div class="n-btn" onclick="mwN(2,this)">2</div>
+        <div class="n-btn" onclick="mwN(3,this)">3</div>
+        <div class="n-btn" onclick="mwN(4,this)">4</div>
+        <div class="n-btn on" onclick="mwN(5,this)">5</div>
+        <div class="n-btn" onclick="mwN(6,this)">6</div>
+        <div class="n-btn" onclick="mwN(7,this)">7</div>
+        <div class="n-btn" onclick="mwN(8,this)">8</div>
+        <div class="n-btn" onclick="mwN(9,this)">9</div>
+      </div>
+    </div>
+
+    <!-- Shared chips -->
+    <div class="shared-chips">
+      <div class="label">Quick Insert → กดแล้วพิมพ์ใน position ที่เลือก</div>
+      <div class="chip-bar">
+        <div class="chip b"   onclick="mwChip(' → ')">→</div>
+        <div class="chip"     onclick="mwChip('r')">r</div>
+        <div class="chip"     onclick="mwChip('c')">c</div>
+        <div class="chip"     onclick="mwChip('f')">f</div>
+        <div class="chip"     onclick="mwChip('3b')">3b</div>
+        <div class="chip"     onclick="mwChip('4b')">4b</div>
+        <div class="chip"     onclick="mwChip('5b')">5b</div>
+        <div class="chip d"   onclick="mwChip('shv')">shv</div>
+        <div class="chip d"   onclick="mwChip('ai')">ai</div>
+        <div class="chip"     onclick="mwChip('fold')">fold</div>
+        <div class="chip"     onclick="mwChip('call')">call</div>
+      </div>
+      <div class="chip-bar">
+        <div class="chip s" onclick="mwChip('2x')">2x</div>
+        <div class="chip s" onclick="mwChip('2.5x')">2.5x</div>
+        <div class="chip s" onclick="mwChip('3x')">3x</div>
+        <div class="chip s" onclick="mwChip('6x')">6x</div>
+        <div class="chip s" onclick="mwChip('8x')">8x</div>
+        <div class="chip s" onclick="mwChip('9.25')">9.25</div>
+        <div class="chip s" onclick="mwChip('10x')">10x</div>
+        <div class="chip s" onclick="mwChip('12')">12</div>
+        <div class="chip s" onclick="mwChip('20')">20</div>
+      </div>
+    </div>
+
+    <!-- Poker Table -->
+    <div class="table-wrap sec">
+      <div class="label">กดที่นั่งเพื่อใส่ action &nbsp;<span style="font-size:9px;font-weight:400;color:var(--muted)">D = Dealer Button</span></div>
+      <svg id="table-svg" class="table-svg" viewBox="-8 -8 376 296" xmlns="http://www.w3.org/2000/svg">
+        <!-- Table layers -->
+        <rect x="30" y="50" width="300" height="170" rx="85" ry="85" class="felt-outer"/>
+        <rect x="38" y="58" width="284" height="154" rx="78" ry="78" class="felt-mid"/>
+        <rect x="46" y="66" width="268" height="138" rx="70" ry="70" class="felt-inner"/>
+        <!-- Diamond pattern hint -->
+        <rect x="46" y="66" width="268" height="138" rx="70" ry="70"
+          fill="url(#diamond-pat)" opacity=".18"/>
+        <defs>
+          <pattern id="diamond-pat" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+            <polygon points="7,0 14,7 7,14 0,7" fill="none" stroke="#ffffff" stroke-width=".5"/>
+          </pattern>
+        </defs>
+        <!-- Center text -->
+        <text x="180" y="132" class="felt-logo">PREFLOP</text>
+        <text x="180" y="145" class="felt-logo" style="font-size:8px;opacity:.08">MULTIWAY</text>
+        <!-- Dealer button (positioned by JS) -->
+        <circle id="dealer-dot" cx="-99" cy="-99" r="10" class="dbtn-circle" opacity="0"/>
+        <text   id="dealer-txt" x="-99" y="-99" class="dbtn-txt"             opacity="0">D</text>
+        <!-- Seats -->
+        <g id="seats-g"></g>
+      </svg>
+      <!-- Legend -->
+      <div class="tbl-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#C04040"></div>Early</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#4080C0"></div>Middle</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#308040"></div>Late</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#A09020"></div>Blinds</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#C9963A;border-radius:50%"></div>Hero</div>
+      </div>
+    </div>
+
+    <!-- Active position input panel -->
+    <div class="pos-panel" id="pos-panel">
+      <div class="pos-panel-head">
+        <div class="pos-panel-badge" id="ppanel-badge">UTG</div>
+        <!-- Hero toggle — prominent button -->
+        <button id="ppanel-hero-btn" onclick="ppanelToggleHero()" style="
+          margin-left:auto;
+          display:flex;align-items:center;gap:6px;
+          padding:7px 14px;border-radius:20px;
+          font-size:12px;font-weight:700;cursor:pointer;
+          border:1.5px solid var(--b2);
+          background:var(--surf);color:var(--muted);
+          transition:all .2s;user-select:none;
+          white-space:nowrap;
+        ">
+          <span id="ppanel-hero-icon" style="font-size:14px">☐</span>
+          <span>นี่คือที่นั่งของฉัน (Hero)</span>
+        </button>
+      </div>
+      <!-- Hero cards if hero -->
+      <div id="ppanel-hcards" style="display:none;margin-bottom:8px">
+        <div class="card-row">
+          <div class="cslot" id="ppanel-hc0" onclick="openPicker('mwHero',0)">
+            <span style="color:var(--muted);font-size:12px">Card 1</span>
+          </div>
+          <div class="cslot" id="ppanel-hc1" onclick="openPicker('mwHero',1)">
+            <span style="color:var(--muted);font-size:12px">Card 2</span>
+          </div>
+        </div>
+      </div>
+      <input class="pos-inp" id="ppanel-inp"
+        placeholder="พิมพ์ action เช่น r2.5x หรือ fold หรือ 3b9x..."
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+
+    <!-- pos-list kept for compat (hidden) -->
+    <div id="pos-list" style="display:none"></div>
+
+    <!-- Summary -->
+    <div class="sec">
+      <div class="label">Summary</div>
+      <div class="mw-summary" id="mw-sum"><span style="color:var(--muted)">พิมพ์ action แต่ละ position...</span></div>
+    </div>
+
+    <!-- Result + Decision -->
+    <div class="sec">
+      <div class="result-row">
+        <div class="result-input">
+          <div class="label">Result +/- (bb)</div>
+          <input class="field" id="mw-result" placeholder="+18 หรือ -22" type="text">
+        </div>
+      </div>
+      <div class="label">Decision</div>
+      <div class="dec-row">
+        <div class="dec-btn" data-v="ok" onclick="setDecMW(this)">[OK]<small>ถูกต้อง</small></div>
+        <div class="dec-btn" data-v="q"  onclick="setDecMW(this)">[?]<small>ไม่แน่ใจ</small></div>
+        <div class="dec-btn" data-v="x"  onclick="setDecMW(this)">[X]<small>ผิดพลาด</small></div>
+      </div>
+    </div>
+
+    <!-- Expand details -->
+    <button class="expand-btn" id="mw-expand-btn" onclick="toggleMWDetails()">
+      + เพิ่มรายละเอียด (Blind, Note)
+    </button>
+    <div class="details-body" id="mw-details">
+      <div class="row sec">
+        <div class="col">
+          <div class="label">Blind Level</div>
+          <input class="field" id="mw-blind" placeholder="1k/2k">
+        </div>
+        <div class="col">
+          <div class="label">Ante</div>
+          <input class="field" id="mw-ante" placeholder="2k BB-ant">
+        </div>
+      </div>
+      <div class="sec">
+        <div class="label">Note / Lesson</div>
+        <textarea class="field" id="mw-note" rows="3" style="resize:none;line-height:1.5"
+          placeholder="บทเรียน ความคิดเห็น..."></textarea>
+      </div>
+    </div>
+
+  </div><!-- /multi-form -->
+
+</div><!-- /panel-rec -->
+
+<!-- ══════════════════════════════════════════════
+     HISTORY PANEL
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-hist">
+  <div id="hist-list"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VILLAIN NOTES PANEL
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-villain">
+  <div class="sec">
+    <div class="label">เพิ่ม Villain ใหม่</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input class="field" id="vn-name-input" placeholder="ชื่อ / ชิปเซ็ต / seat# เช่น 'Seat 3 hoodie guy'"
+        style="flex:1" onkeydown="if(event.key==='Enter')addVillain()">
+      <button class="vn-add-btn" onclick="addVillain()">+ เพิ่ม</button>
+    </div>
+  </div>
+  <div id="villain-list">
+    <div class="empty"><div class="empty-icon">👤</div>
+      <p style="font-size:13px;line-height:1.6">ยังไม่มี Villain ที่บันทึก<br>เพิ่มชื่อ/ชิปเซ็ตด้านบน</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SESSION STATS PANEL
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-session">
+  <div id="session-content">
+    <div class="empty"><div class="empty-icon">📊</div>
+      <p style="font-size:13px;line-height:1.6">ยังไม่มี hand ที่บันทึก<br>กลับไปบันทึก hand ก่อน</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     GUIDE / ABOUT PANEL
+══════════════════════════════════════════════ -->
+<div class="panel" id="panel-about">
+
+  <!-- Brand card -->
+  <div style="text-align:center;padding:20px 0 14px">
+    <div style="font-size:36px;margin-bottom:8px">🃏</div>
+    <div style="font-size:17px;font-weight:700;color:var(--acc)">HAND JOURNAL</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:3px">Tournament Edition v8 · พีร์ บุญชนะวิวัฒน์</div>
+  </div>
+
+  <!-- Guide section -->
+  <div class="sec">
+    <div class="label" style="margin-bottom:8px">📖 วิธีใช้งาน</div>
+
+    <div class="guide-q" onclick="toggleGuide('g1')">
+      1. วิธีบันทึก Hand ขั้นตอน <span id="g1-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g1">
+      <b>ระหว่างเล่น</b> (30 วินาที):<br>
+      1. เลือก <code>HU</code> หรือ <code>MULTI</code> ด้านบน<br>
+      2. กดกล่อง <b>Hero Cards</b> เลือกไพ่ในมือ<br>
+      3. ช่อง <b>Preflop</b> — พิมพ์หรือกด chip แทรก เช่น <code>H:r2.5x → V:c</code><br>
+      4. กด street <b>Flop / Turn / River</b> เพื่อเปิด กด action + sizing<br>
+      5. ใส่ <b>Result</b> +/- bb และกด <b>[OK] [?] [X]</b><br>
+      6. กด <b>SAVE HAND</b><br><br>
+      <b>ช่วง Break</b> (ใจเย็น):<br>
+      กด <b>+ เพิ่มรายละเอียด</b> ใส่ Stack, Blind, Read, Note
+    </div>
+
+    <div class="guide-q" onclick="toggleGuide('g2')" style="margin-top:6px">
+      2. [OK] [?] [X] แตกต่างกันยังไง <span id="g2-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g2">
+      <b>[OK]</b> — ตัดสินใจถูกต้อง ไม่ต้อง review<br>
+      <b>[?]</b> — ไม่แน่ใจ ต้องเอาไปวิเคราะห์กับ GTO Wizard หลัง break<br>
+      <b>[X]</b> — รู้แล้วว่าผิด ต้อง review ป้องกันซ้ำ<br><br>
+      เมื่อกด <b>[?]</b> หรือ <b>[X]</b> แอพจะถามว่า <b>"ทำไมถึงตัดสินใจแบบนั้น?"</b> — กรอกให้ครบ เพราะนี่คือ learning point ที่สำคัญที่สุด
+    </div>
+
+    <div class="guide-q" onclick="toggleGuide('g3')" style="margin-top:6px">
+      3. Concept Tags ใช้ยังไง <span id="g3-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g3">
+      Tag บอกว่า hand นี้เกี่ยวกับ <b>situation ประเภทไหน</b><br><br>
+      ตัวอย่าง: hand ที่ hero c-bet แล้วโดน raise → tag <code>c-bet</code><br>
+      hand ที่ตัดสินใจ push/fold ใน short stack → tag <code>push/fold</code> + <code>ICM</code><br><br>
+      ประโยชน์: ดูหน้า <b>Session</b> แล้วจะเห็นว่า situation ไหนที่ [?] [X] เยอะที่สุด — นั่นคือ weak spot ที่ต้องไป study
+    </div>
+
+    <div class="guide-q" onclick="toggleGuide('g4')" style="margin-top:6px">
+      4. Action Shorthand อ่านว่าอะไร <span id="g4-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g4">
+      <code>H:</code> = Hero  <code>V:</code> = Villain  <code>→</code> = แล้วจึง<br><br>
+      <code>r2.5x</code> = raise 2.5bb&emsp;<code>3b9x</code> = 3-bet 9bb<br>
+      <code>c</code> = call&emsp;<code>f</code> = fold&emsp;<code>x</code> = check<br>
+      <code>b50</code> = bet 50% pot&emsp;<code>b100</code> = pot bet<br>
+      <code>shv</code> = shove all-in&emsp;<code>cb</code> = c-bet<br>
+      <code>sq</code> = squeeze&emsp;<code>ai</code> = all-in<br><br>
+      ตัวอย่าง: <code>H:r2.5x → V:3b9x → H:4b22 → V:c</code><br>
+      = Hero raise 2.5bb, V 3-bet 9bb, Hero 4-bet 22bb, V call
+    </div>
+
+    <div class="guide-q" onclick="toggleGuide('g5')" style="margin-top:6px">
+      5. Villain Notes ใช้ยังไง <span id="g5-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g5">
+      แท็บ <b>Villain</b> ใช้เก็บ notes เกี่ยวกับผู้เล่นที่เจอบ่อยหรือน่าสนใจ<br><br>
+      เพิ่ม Villain ด้วยชื่อหรือรายละเอียดที่จำได้ เช่น <code>Seat 3 hoodie</code><br>
+      แล้วกด <b>+ เพิ่ม note</b> จดนิสัยที่สังเกตเห็น เช่น:<br>
+      <code>c-bet 100% ทุก flop</code><br>
+      <code>fold to 3-bet preflop เยอะมาก</code><br>
+      <code>hero call river ด้วย 2nd pair</code><br><br>
+      ข้อมูลนี้ช่วยได้มากถ้าเจอคนเดิมในทัวร์ถัดไป
+    </div>
+
+    <div class="guide-q" onclick="toggleGuide('g6')" style="margin-top:6px">
+      6. วิธีติดตั้งและ Backup ข้อมูล <span id="g6-chev">▼</span>
+    </div>
+    <div class="guide-a" id="g6">
+      <b>ติดตั้งบน iPhone:</b> Safari → Share → Add to Home Screen<br>
+      <b>ติดตั้งบน Android:</b> Chrome → ⋮ → Add to Home Screen<br><br>
+      ⚠️ <b>สำคัญ:</b> กด <code>📤</code> มุมขวาบน export .txt ทุกครั้งหลังทัวร์<br>
+      iOS อาจล้างข้อมูลถ้าไม่เปิดแอพนานเกิน 7 วัน<br><br>
+      <b>ลิงก์แอพ:</b> phi23886-gif.github.io/hand-journal<br>
+      <b>Facebook:</b> facebook.com/peaceofmindtrader
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<button id="save-btn" class="show" onclick="doSave()">SAVE HAND</button>
+
+</div><!-- /app -->
+
+<!-- Card Picker Modal -->
+<div id="overlay" onclick="maybeClose(event)">
+  <div id="modal">
+    <div class="modal-title" id="modal-ttl">เลือกไพ่</div>
+    <span style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px">Rank</span>
+    <div class="rank-grid" id="rg"></div>
+    <span style="font-size:10px;color:var(--muted);display:block;margin:10px 0 4px">Suit (ดอก)</span>
+    <div class="suit-grid" id="sg"></div>
+    <button class="confirm-btn" onclick="confirmCard()">ยืนยัน</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════════════
+const RANKS=['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+const SUITS=[{v:'s',sym:'♠',cls:'sS',label:'Spade'},{v:'h',sym:'♥',cls:'sH',label:'Heart'},
+             {v:'d',sym:'♦',cls:'sD',label:'Diamond'},{v:'c',sym:'♣',cls:'sC',label:'Club'}];
+const SSYM={s:'♠',h:'♥',d:'♦',c:'♣'};
+const SCLS={s:'cs',h:'ch',d:'cd',c:'cc'};
+const ALLPOS=['UTG','UTG1','UTG2','LJ','HJ','CO','BTN','SB','BB'];
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let mode='hu';
+let G=freshG();
+let MW=freshMW();
+let hands=JSON.parse(localStorage.getItem('hj_v6')||'[]');
+let pTarget=null,pRank=null,pSuit=null;
+let mwFocus=null;
+
+function freshG(){
+  return {
+    hCards:[null,null], vCards:[null,null],
+    board:[null,null,null,null,null],
+    acts:{flop:[],turn:[],river:[]},
+    actor:{flop:'Hero',turn:'Hero',river:'Hero'},
+    sizing:{flop:'',turn:'',river:''},
+    pos:'BTN', dec:''
+  };
+}
+function freshMW(){
+  return {
+    n:5, positions:mwPos(5),
+    texts:{}, hero:null, heroCards:[null,null],
+    dec:''
+  };
+}
+function mwPos(n){
+  if(n>=ALLPOS.length) return [...ALLPOS];
+  if(n<=2) return ['BTN','BB'];          // HU: only BTN vs BB
+  if(n<=3) return ['BTN','SB','BB'];     // 3-handed
+  return [...ALLPOS.slice(0,n-3), ...ALLPOS.slice(-3)];
+}
+
+// ════════════════════════════════════════════════════════════════
+// THEME & TABS
+// ════════════════════════════════════════════════════════════════
+function setTheme(t){
+  document.documentElement.dataset.theme=t;
+  document.querySelectorAll('.t-opt').forEach(e=>e.classList.toggle('on',e.dataset.t===t));
+  localStorage.setItem('hj_theme',t);
+}
+(()=>{const t=localStorage.getItem('hj_theme');if(t)setTheme(t);})();
+
+function go(tab){
+  const tabOrder=['rec','hist','villain','session','about'];
+  document.querySelectorAll('.tab').forEach((el,i)=>
+    el.classList.toggle('on', tabOrder[i]===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  const panel=document.getElementById('panel-'+tab);
+  if(panel) panel.classList.add('on');
+  document.getElementById('save-btn').classList.toggle('show',tab==='rec');
+  if(tab==='hist')    renderHistory();
+  if(tab==='villain') renderVillains();
+  if(tab==='session') renderSession();
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODE TOGGLE
+// ════════════════════════════════════════════════════════════════
+function setMode(m,el){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  document.getElementById('hu-form').style.display=m==='hu'?'block':'none';
+  document.getElementById('multi-form').style.display=m==='multi'?'block':'none';
+  if(m==='multi') renderMW();
+}
+
+// ════════════════════════════════════════════════════════════════
+// DETAILS EXPANDER
+// ════════════════════════════════════════════════════════════════
+function toggleDetails(){
+  const b=document.getElementById('details-body');
+  const btn=document.getElementById('expand-btn');
+  b.classList.toggle('open');
+  btn.textContent=b.classList.contains('open')
+    ? '− ซ่อนรายละเอียด'
+    : '+ เพิ่มรายละเอียด (Stack, Blind, Read, Note, Villain Hand)';
+}
+function toggleMWDetails(){
+  const b=document.getElementById('mw-details');
+  const btn=document.getElementById('mw-expand-btn');
+  b.classList.toggle('open');
+  btn.textContent=b.classList.contains('open')
+    ? '− ซ่อนรายละเอียด'
+    : '+ เพิ่มรายละเอียด (Blind, Note)';
+}
+
+// ════════════════════════════════════════════════════════════════
+// PREFLOP HYBRID (HU)
+// ════════════════════════════════════════════════════════════════
+function pfIns(text){
+  const el=document.getElementById('pf-text');
+  if(!el) return;
+  el.focus();
+  const s=el.selectionStart,e=el.selectionEnd;
+  el.value=el.value.slice(0,s)+text+el.value.slice(e);
+  const p=s+text.length;
+  el.setSelectionRange(p,p);
+}
+
+// ════════════════════════════════════════════════════════════════
+// STREET COLLAPSIBLES
+// ════════════════════════════════════════════════════════════════
+function toggleStreet(s){
+  const b=document.getElementById('body-'+s);
+  const c=document.getElementById('chev-'+s);
+  b.classList.toggle('open');
+  c.classList.toggle('open');
+}
+function stopAnd(e,fn){e.stopPropagation();fn();}
+
+// ════════════════════════════════════════════════════════════════
+// POST-FLOP ACTIONS
+// ════════════════════════════════════════════════════════════════
+function pAct(s,token){
+  const actor=G.actor[s];
+  const sz=G.sizing[s];
+  let t=token;
+  if(sz&&(token==='b'||token==='cb'||token==='r')) t=token+sz;
+  G.acts[s].push({actor,t});
+  G.sizing[s]='';
+  document.querySelectorAll(`#sz-${s} .szbtn`).forEach(c=>c.classList.remove('on'));
+  const ci=document.getElementById(`sz-custom-${s}`);
+  if(ci) ci.value='';
+  renderLog(s);
+}
+function pUndo(s){G.acts[s].pop();renderLog(s);}
+function renderLog(s){
+  const el=document.getElementById('log-'+s);
+  const a=G.acts[s];
+  if(!a.length){el.innerHTML='<span class="aph">action...</span>';
+    document.getElementById('prev-'+s).textContent=''; return;}
+  const txt=a.map(x=>`${x.actor==='Hero'?'H:':'V:'}${x.t}`).join(' → ');
+  el.textContent=txt;
+  document.getElementById('prev-'+s).textContent=txt.length>16?txt.slice(0,16)+'…':txt;
+}
+function pSz(s,v,el){
+  G.sizing[s]=v;
+  el.closest('.sz-bar').querySelectorAll('.szbtn').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  const ci=document.getElementById(`sz-custom-${s}`);
+  if(ci) ci.value='';
+}
+function pSzCustom(s,v){
+  G.sizing[s]=v;
+  document.querySelectorAll(`#sz-${s} .szbtn`).forEach(c=>c.classList.remove('on'));
+}
+function pActor(s,el){
+  document.querySelectorAll(`#ag-${s} .actor-btn`).forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  G.actor[s]=el.dataset.a;
+}
+function setPos(el){
+  document.querySelectorAll('#pos-toggle .actor-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  G.pos=el.dataset.pos;
+}
+function setDec(el){
+  document.querySelectorAll('#hu-form .dec-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  G.dec=el.dataset.v;
+  const box=document.getElementById('reason-box');
+  if(box){
+    const show=(G.dec==='q'||G.dec==='x');
+    box.classList.toggle('open',show);
+    if(show) setTimeout(()=>document.getElementById('f-reason')?.focus(),100);
+  }
+}
+function toggleTag(el,tag){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){
+    if(!G.tags) G.tags=[];
+    if(!G.tags.includes(tag)) G.tags.push(tag);
+  } else {
+    if(G.tags) G.tags=G.tags.filter(t=>t!==tag);
+  }
+}
+function setDecMW(el){
+  document.querySelectorAll('#multi-form .dec-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  MW.dec=el.dataset.v;
+}
+
+// ════════════════════════════════════════════════════════════════
+// CARD PICKER
+// ════════════════════════════════════════════════════════════════
+function openPicker(grp,idx){
+  pTarget={grp,idx}; pRank=null; pSuit=null;
+  const lbl={hero:'Hero Card',villain:'Villain Card',board:'Board Card',mwHero:'Hero Card'};
+  document.getElementById('modal-ttl').textContent=`${lbl[grp]} ${idx+1}`;
+  document.getElementById('rg').innerHTML=
+    RANKS.map(r=>`<div class="pick-btn" onclick="pR('${r}',this)">${r}</div>`).join('');
+  document.getElementById('sg').innerHTML=
+    SUITS.map(s=>`<div class="pick-btn ${s.cls}" onclick="pS('${s.v}',this)">${s.sym} ${s.label}</div>`).join('');
+  document.getElementById('overlay').classList.add('open');
+}
+function pR(r,el){
+  pRank=r;
+  document.querySelectorAll('#rg .pick-btn').forEach(b=>b.classList.remove('ron'));
+  el.classList.add('ron');
+}
+function pS(s,el){
+  pSuit=s;
+  document.querySelectorAll('#sg .pick-btn').forEach(b=>b.classList.remove('son'));
+  el.classList.add('son');
+}
+function confirmCard(){
+  if(!pRank||!pSuit){toast('เลือก Rank และ Suit ก่อนนะ');return;}
+  const card={rank:pRank,suit:pSuit};
+  const{grp,idx}=pTarget;
+  if(grp==='hero')   {G.hCards[idx]=card;renderSlot('hs'+idx,card,grp,idx);}
+  if(grp==='villain'){G.vCards[idx]=card;renderSlot('vs'+idx,card,grp,idx);}
+  if(grp==='board')  {G.board[idx]=card;renderBoard(idx,card);}
+  if(grp==='mwHero') {MW.heroCards[idx]=card;closeModal();renderMW();updatePPanel();return;}
+  closeModal();
+}
+function maybeClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+function cHTML(card){return`<span class="${SCLS[card.suit]}">${card.rank}${SSYM[card.suit]}</span>`;}
+function renderSlot(id,card,grp,idx){
+  const el=document.getElementById(id);
+  el.classList.add('filled');
+  el.innerHTML=cHTML(card)+`<span class="x" onclick="clearSlot(event,'${id}','${grp}',${idx})">✕</span>`;
+}
+function clearSlot(e,id,grp,idx){
+  e.stopPropagation();
+  if(grp==='hero') G.hCards[idx]=null;
+  if(grp==='villain') G.vCards[idx]=null;
+  const el=document.getElementById(id);
+  el.classList.remove('filled');
+  el.innerHTML=`<span style="color:var(--muted);font-size:13px">Card ${idx+1}</span>`;
+}
+function renderBoard(idx,card){
+  const ids=['bf0','bf1','bf2','bt','br'];
+  const el=document.getElementById(ids[idx]);
+  el.classList.add('filled');
+  el.innerHTML=cHTML(card);
+}
+
+// ════════════════════════════════════════════════════════════════
+// MULTIWAY
+// ════════════════════════════════════════════════════════════════
+function mwN(n,el){
+  document.querySelectorAll('#n-bar .n-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  // save ppanel input
+  const inp=document.getElementById('ppanel-inp');
+  if(inp&&mwFocus) MW.texts[mwFocus]=inp.value;
+  MW.n=n; MW.positions=mwPos(n);
+  if(MW.hero&&!MW.positions.includes(MW.hero))MW.hero=null;
+  if(mwFocus&&!MW.positions.includes(mwFocus))mwFocus=null;
+  renderMW();
+}
+
+// ════════════════════════════════════════════════════════════════
+// POKER TABLE RENDERING — badge style like GTO Wizard / image
+// ════════════════════════════════════════════════════════════════
+
+// Category colors matching image:
+// Early (UTG, UTG1) = red   Middle (LJ, HJ) = blue   Late (CO, BTN) = green   Blinds (SB, BB) = yellow
+const POS_CAT={
+  UTG: 'early', UTG1:'early', UTG2:'early',
+  LJ:  'mid',   HJ:  'mid',
+  CO:  'late',  BTN: 'late',
+  SB:  'blind', BB:  'blind',
+};
+const CAT_COLOR={
+  early:{bg:'#B83030',border:'#E04040',txt:'#FFFFFF'},
+  mid:  {bg:'#2060A0',border:'#50A0E0',txt:'#FFFFFF'},
+  late: {bg:'#287030',border:'#40B050',txt:'#FFFFFF'},
+  blind:{bg:'#907010',border:'#D0A820',txt:'#FFFFFF'},
+};
+
+// Full position name for subtitle
+const POS_FULL={
+  UTG:'Under the Gun', UTG1:'UTG +1', UTG2:'UTG +2',
+  LJ:'Lo-Jack', HJ:'Hi-Jack',
+  CO:'Cut Off', BTN:'Dealer/Button',
+  SB:'Small Blind', BB:'Big Blind',
+};
+
+// Fixed seat coordinates for 9-max table (viewBox 0 0 360 280)
+// Table oval: center 180,135  rx≈148 ry≈90
+// Seats placed OUTSIDE the oval at fixed spots around the edge
+// Order: BTN(bottom-center-right) SB(bottom-left-center) BB(left-bottom)
+//        UTG(left-top) UTG1(top-left-center) LJ(top-center-left) HJ(top-center-right) CO(right-top-center) [back to BTN]
+// For fewer players, we hide the middle ones
+const SEAT_POS_9MAX={
+  BTN: {x:276, y:221},  // 50°  bottom-right
+  SB:  {x:180, y:247},  // 90°  bottom-center
+  BB:  {x: 84, y:221},  // 130° bottom-left
+  UTG: {x: 32, y:154},  // 170° left
+  UTG1:{x: 50, y: 79},  // 210° top-left
+  UTG2:{x:129, y: 30},  // 250° top-center-left
+  LJ:  {x:231, y: 30},  // 290° top-center-right
+  HJ:  {x:310, y: 79},  // 330° top-right
+  CO:  {x:328, y:154},  // 10°  right
+};
+
+// Dealer button position (inside felt, near BTN)
+const DEALER_POS={x:225,y:189};
+
+function seatCoords(n){
+  const positions=mwPos(n);
+  const coords={};
+  positions.forEach(p=>{
+    coords[p]=SEAT_POS_9MAX[p]||{x:180,y:135};
+  });
+  return coords;
+}
+
+function renderMW(){
+  MW.positions.forEach(p=>{const i=document.getElementById('pi-'+p);if(i)MW.texts[p]=i.value;});
+  renderTable();
+  mwSum();
+  updatePPanel();
+}
+
+function renderTable(){
+  const g=document.getElementById('seats-g');
+  if(!g)return;
+  const coords=seatCoords(MW.n);
+  const BW=38,BH=28,BR=5; // badge width, height, corner radius
+  const CX=180,CY=135;     // table center
+
+  let html='';
+
+  MW.positions.forEach(pos=>{
+    const {x,y}=coords[pos];
+    const cat=POS_CAT[pos]||'mid';
+    const col=CAT_COLOR[cat];
+    const isH=MW.hero===pos;
+    const hasAct=(MW.texts[pos]||'').trim().length>0;
+    const isActive=mwFocus===pos;
+    const actTxt=(MW.texts[pos]||'').trim();
+    const shortAct=actTxt.length>9?actTxt.slice(0,8)+'…':actTxt;
+    const heroCards=isH&&MW.heroCards.some(Boolean)
+      ?MW.heroCards.map(c=>c?c.rank+(c.suit==='h'?'♥':c.suit==='d'?'♦':c.suit==='c'?'♣':'♠'):'?').join(''):'';
+
+    // Badge colors — brighten when active/hero
+    const bgCol  = isActive?'#7A4800':(isH?'#5A3400':(hasAct?col.bg:'#222228'));
+    const brdCol = isActive?'#E6B84A':(isH?'#C9963A':col.border);
+    const txtCol = (isActive||isH)?'#E6B84A':'#FFFFFF';
+
+    // Glow ring behind badge (active or hero)
+    const glowR = isActive?3.5:(isH?2:'');
+    const glowC = isActive?'#E6B84A':(isH?'#C9963A':'none');
+    const glowOpacity = (isActive||isH)?'1':'0';
+
+    html+=`
+    <g class="seat-g" onclick="seatClick('${pos}')" transform="translate(${x},${y})">
+      ${(isActive||isH)?`<rect x="${-BW/2-3}" y="${-BH/2-3}" width="${BW+6}" height="${BH+6}" rx="${BR+2}" ry="${BR+2}" fill="none" stroke="${glowC}" stroke-width="2" opacity="${glowOpacity}" stroke-dasharray="${isH&&!isActive?'3,2':'none'}"/>`:''}
+      <!-- main badge -->
+      <rect x="${-BW/2}" y="${-BH/2}" width="${BW}" height="${BH}" rx="${BR}" ry="${BR}"
+        fill="${bgCol}" stroke="${brdCol}" stroke-width="1.5"/>
+      <!-- Position name -->
+      <text x="0" y="-4" class="seat-badge-txt" fill="${txtCol}">${pos}</text>
+      <!-- Action or sub-label -->
+      ${hasAct
+        ?`<text x="0" y="7" class="seat-act-txt" fill="#E8D090">${shortAct}</text>`
+        :`<text x="0" y="7" class="seat-sub-txt" fill="${col.border}" opacity=".8">${POS_FULL[pos]?.split(' ').slice(-1)[0]||''}</text>`
+      }
+      ${heroCards?`<text x="0" y="${BH/2+9}" class="seat-cards-txt" fill="#E6B84A">${heroCards}</text>`:''}
+    </g>`;
+  });
+
+  g.innerHTML=html;
+
+  // Dealer button inside table near BTN
+  const dd=document.getElementById('dealer-dot');
+  const dt=document.getElementById('dealer-txt');
+  if(dd){dd.setAttribute('cx',DEALER_POS.x);dd.setAttribute('cy',DEALER_POS.y);dd.setAttribute('opacity','1');}
+  if(dt){dt.setAttribute('x',DEALER_POS.x);dt.setAttribute('y',DEALER_POS.y);dt.setAttribute('opacity','1');}
+}
+
+function seatClick(pos){
+  mwFocus=pos;
+  MW.positions.forEach(p=>{const i=document.getElementById('pi-'+p);if(i)MW.texts[p]=i.value;});
+  renderTable();
+  updatePPanel();
+  // focus input after short delay
+  setTimeout(()=>{
+    const inp=document.getElementById('ppanel-inp');
+    if(inp) inp.focus();
+  },80);
+}
+
+function updatePPanel(){
+  const panel  = document.getElementById('pos-panel');
+  const badge  = document.getElementById('ppanel-badge');
+  const hbtn   = document.getElementById('ppanel-hero-btn');
+  const hicon  = document.getElementById('ppanel-hero-icon');
+  const hcards = document.getElementById('ppanel-hcards');
+  const inp    = document.getElementById('ppanel-inp');
+  if(!panel) return;
+
+  if(!mwFocus){ panel.classList.remove('open'); return; }
+
+  const pos = mwFocus;
+  const isH = MW.hero === pos;
+
+  panel.classList.add('open');
+
+  // Badge color
+  if(badge){
+    badge.textContent = pos;
+    const cat = POS_CAT[pos]||'mid';
+    const col = CAT_COLOR[cat];
+    badge.style.background = col.bg;
+    badge.style.color      = col.txt;
+    badge.style.border     = `1.5px solid ${col.border}`;
+  }
+
+  // Hero button state
+  if(hbtn){
+    if(isH){
+      hbtn.style.background   = 'var(--ok-bg)';
+      hbtn.style.borderColor  = 'var(--ok)';
+      hbtn.style.color        = 'var(--ok)';
+    } else {
+      hbtn.style.background   = 'var(--surf)';
+      hbtn.style.borderColor  = 'var(--b2)';
+      hbtn.style.color        = 'var(--muted)';
+    }
+  }
+  if(hicon) hicon.textContent = isH ? '☑' : '☐';
+
+  // Hero cards panel
+  if(hcards){
+    hcards.style.display = isH ? 'block' : 'none';
+    if(isH){
+      ['ppanel-hc0','ppanel-hc1'].forEach((id,i)=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        const c = MW.heroCards[i];
+        if(c){
+          el.classList.add('filled');
+          el.innerHTML = cHTML(c)+`<span class="x" onclick="mwCC(event,${i})">✕</span>`;
+        } else {
+          el.classList.remove('filled');
+          el.innerHTML = `<span style="color:var(--muted);font-size:12px">Card ${i+1}</span>`;
+        }
+      });
+    }
+  }
+
+  // Action input
+  if(inp){
+    inp.value       = MW.texts[pos]||'';
+    inp.placeholder = `${pos}: r2.5x / fold / 3b9x / call...`;
+    inp.oninput = ()=>{ MW.texts[pos]=inp.value; mwPrev(pos); renderTable(); mwSum(); };
+    inp.onfocus = ()=>{ mwFocus=pos; };
+  }
+}
+
+function ppanelToggleHero(){
+  MW.hero=MW.hero===mwFocus?null:mwFocus;
+  renderMW();
+  updatePPanel();
+  setTimeout(()=>{const i=document.getElementById('ppanel-inp');if(i)i.focus();},80);
+}
+
+function mwToggle(p){ seatClick(p); }
+function mwToggleHero(p){ MW.hero=MW.hero===p?null:p; renderMW(); updatePPanel(); }
+function mwCC(e,idx){
+  e.stopPropagation();
+  MW.heroCards[idx]=null;
+  renderMW();
+  updatePPanel();
+}
+function mwPrev(p){
+  // update seat preview via renderTable (called in updatePPanel chain)
+}
+function mwChip(text){
+  // always target ppanel input if visible
+  const inp=document.getElementById('ppanel-inp');
+  if(inp&&mwFocus&&document.getElementById('pos-panel').classList.contains('open')){
+    const s=inp.selectionStart,e=inp.selectionEnd;
+    inp.value=inp.value.slice(0,s)+text+inp.value.slice(e);
+    const p2=s+text.length;
+    inp.setSelectionRange(p2,p2);
+    inp.focus();
+    MW.texts[mwFocus]=inp.value;
+    renderTable();
+    mwSum();
+    return;
+  }
+  // fallback: open first seat
+  if(MW.positions[0]){seatClick(MW.positions[0]);}
+}
+function mwSum(){
+  const el=document.getElementById('mw-sum');
+  if(!el)return;
+  const lines=MW.positions.map(p=>{
+    const t=MW.texts[p]||'—';
+    const isH=MW.hero===p;
+    const hc=isH&&MW.heroCards.some(Boolean)
+      ?' ['+MW.heroCards.map(c=>c?c.rank+SSYM[c.suit]:'?').join('')+']':'';
+    return`<span class="k">${p}${hc}:</span> ${t}${isH?' ←HERO':''}`;
+  });
+  el.innerHTML=lines.join('<br>');
+}
+
+// ════════════════════════════════════════════════════════════════
+// SAVE
+// ════════════════════════════════════════════════════════════════
+function actStr(s){
+  const a=G.acts[s];
+  if(!a.length)return'-';
+  return a.map(x=>`${x.actor==='Hero'?'H:':'V:'}${x.t}`).join(' → ');
+}
+function bStr(s,e){
+  return G.board.slice(s,e).map(c=>c?c.rank+SSYM[c.suit]:'?').join(' ');
+}
+function cStr(cards){return cards.map(c=>c?c.rank+SSYM[c.suit]:'?').join('');}
+
+function doSave(){
+  if(mode==='hu') saveHU();
+  else saveMW();
+}
+
+function saveHU(){
+  const h={
+    id:hands.length+1, ts:Date.now(), type:'hu',
+    pos:     G.pos,
+    hSt:     document.getElementById('f-hero-st').value||'?',
+    vSt:     document.getElementById('f-vil-st').value||'?',
+    blind:   document.getElementById('f-blind').value,
+    ante:    document.getElementById('f-ante').value,
+    read:    document.getElementById('f-read').value,
+    hCards:  cStr(G.hCards),
+    vCards:  G.vCards.some(Boolean)?cStr(G.vCards):'',
+    pfAct:   document.getElementById('pf-text').value.trim()||'-',
+    flop:    bStr(0,3),
+    fAct:    actStr('flop'),
+    turn:    G.board[3]?G.board[3].rank+SSYM[G.board[3].suit]:'',
+    tAct:    actStr('turn'),
+    river:   G.board[4]?G.board[4].rank+SSYM[G.board[4].suit]:'',
+    rAct:    actStr('river'),
+    result:  document.getElementById('f-result').value,
+    dec:     G.dec,
+    reason:  document.getElementById('f-reason')?.value||'',
+    tags:    G.tags||[],
+    note:    document.getElementById('f-note').value,
+  };
+  hands.unshift(h);
+  localStorage.setItem('hj_v6',JSON.stringify(hands));
+  toast('บันทึกแล้ว ✓');
+  resetHU();
+}
+
+function saveMW(){
+  // save active ppanel input first
+  const inp=document.getElementById('ppanel-inp');
+  if(inp&&mwFocus) MW.texts[mwFocus]=inp.value;
+  const pfSummary=MW.positions.map(p=>{
+    const isH=MW.hero===p;
+    const hc=isH&&MW.heroCards.some(Boolean)
+      ?' ['+MW.heroCards.map(c=>c?c.rank+SSYM[c.suit]:'?').join('')+']':'';
+    return`${p}${hc}: ${MW.texts[p]||'—'}`;
+  }).join('\n  ');
+  const h={
+    id:hands.length+1, ts:Date.now(), type:'multi',
+    pos:`MW-${MW.n}`, hSt:'—', vSt:'—',
+    blind: document.getElementById('mw-blind').value,
+    ante:  document.getElementById('mw-ante').value,
+    read:'',
+    hCards: MW.heroCards.some(Boolean)?MW.heroCards.map(c=>c?c.rank+SSYM[c.suit]:'?').join(''):'',
+    vCards:'',
+    pfAct:`MULTIWAY (${MW.n}p):\n  ${pfSummary}`,
+    flop:'',fAct:'-',turn:'',tAct:'-',river:'',rAct:'-',
+    result: document.getElementById('mw-result').value,
+    dec: MW.dec,
+    note: document.getElementById('mw-note').value,
+  };
+  hands.unshift(h);
+  localStorage.setItem('hj_v6',JSON.stringify(hands));
+  toast('บันทึก Multiway Hand แล้ว ✓');
+  resetMW();
+}
+
+function resetHU(){
+  G=freshG();
+  ['f-blind','f-ante','f-hero-st','f-vil-st','f-read','f-result','f-note','pf-text','f-reason']
+    .forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.querySelectorAll('#tag-bar .ctag').forEach(t=>t.classList.remove('on'));
+  G.tags=[];
+  const rb=document.getElementById('reason-box');if(rb)rb.classList.remove('open');
+  ['hs0','hs1','vs0','vs1'].forEach((id,i)=>{
+    const e=document.getElementById(id);if(!e)return;
+    e.classList.remove('filled');
+    e.innerHTML=`<span style="color:var(--muted);font-size:13px">Card ${(i%2)+1}</span>`;
+  });
+  ['bf0','bf1','bf2','bt','br'].forEach(id=>{
+    const e=document.getElementById(id);
+    if(e){e.classList.remove('filled');e.textContent='?';}
+  });
+  ['flop','turn','river'].forEach(s=>{
+    const el=document.getElementById('log-'+s);
+    if(el)el.innerHTML='<span class="aph">action...</span>';
+    document.getElementById('prev-'+s).textContent='';
+    document.querySelectorAll(`#sz-${s} .szbtn`).forEach(c=>c.classList.remove('on'));
+    document.querySelectorAll(`#ag-${s} .actor-btn`).forEach((b,i)=>b.classList.toggle('on',i===0));
+    const ci=document.getElementById(`sz-custom-${s}`);if(ci)ci.value='';
+    const b=document.getElementById('body-'+s);if(b)b.classList.remove('open');
+    const c=document.getElementById('chev-'+s);if(c)c.classList.remove('open');
+  });
+  document.querySelectorAll('#hu-form .dec-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#pos-toggle .actor-btn').forEach((b,i)=>b.classList.toggle('on',i===0));
+  const det=document.getElementById('details-body');if(det)det.classList.remove('open');
+  const detb=document.getElementById('expand-btn');
+  if(detb)detb.textContent='+ เพิ่มรายละเอียด (Stack, Blind, Read, Note, Villain Hand)';
+}
+
+function resetMW(){
+  MW=freshMW();
+  ['mw-blind','mw-ante','mw-result','mw-note']
+    .forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.querySelectorAll('#multi-form .dec-btn').forEach(b=>b.classList.remove('on'));
+  mwFocus=null;
+  const pp=document.getElementById('pos-panel');if(pp)pp.classList.remove('open');
+  const pi=document.getElementById('ppanel-inp');if(pi)pi.value='';
+  renderMW();
+  const det=document.getElementById('mw-details');if(det)det.classList.remove('open');
+  const detb=document.getElementById('mw-expand-btn');
+  if(detb)detb.textContent='+ เพิ่มรายละเอียด (Blind, Note)';
+}
+
+// ════════════════════════════════════════════════════════════════
+// FORMAT & COLORED HISTORY
+// ════════════════════════════════════════════════════════════════
+function fmt(h){
+  // plain-text export format
+  const d=new Date(h.ts).toLocaleString('th-TH',
+    {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
+  const lines=[`#${h.id}  ${d}  [${h.type||'hu'}]`];
+  if(h.type==='multi'){
+    if(h.blind)lines.push(`BLIND:   ${h.blind}${h.ante?' | ANT:'+h.ante:''}`);
+    lines.push('',h.pfAct);
+  } else {
+    lines.push(`SETUP:   Hero (${h.pos||'?'}, ${h.hSt}bb)  vs  Villain (${h.vSt}bb)`);
+    if(h.blind)lines.push(`BLIND:   ${h.blind}${h.ante?' | ANT:'+h.ante:''}`);
+    if(h.read) lines.push(`READ:    ${h.read}`);
+    lines.push(`HAND:    ${h.hCards}`,'');
+    lines.push(`PREFLOP: ${h.pfAct}`);
+    if(h.flop) lines.push(`FLOP:    ${h.flop}  →  ${h.fAct}`);
+    if(h.turn) lines.push(`TURN:    ${h.turn}  →  ${h.tAct}`);
+    if(h.river)lines.push(`RIVER:   ${h.river}  →  ${h.rAct}`);
+    if(h.vCards)lines.push(`V HAND:  ${h.vCards}`);
+  }
+  lines.push('',`RESULT:  ${h.result||'-'}`,`DECISION:[${h.dec?h.dec.toUpperCase():'-'}]`);
+  if(h.tags&&h.tags.length)lines.push(`TAGS:    ${h.tags.join(', ')}`);
+  if(h.reason)lines.push(`REASON:  ${h.reason}`);
+  if(h.note)  lines.push(`NOTE:    ${h.note}`);
+  return lines.join('\n');
+}
+
+function fmtColored(h){
+  // colored HTML for history view
+  const d=new Date(h.ts).toLocaleString('th-TH',
+    {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
+  const hl=(cls,key,val)=>
+    `<div class="hl"><span class="hl-key ${cls}">${key}</span><span class="hl-val">${val}</span></div>`;
+  const resClass=!h.result?'res-neu':(h.result.startsWith('-')?'res-neg':'res-pos');
+  let html=hl('hk-setup','DATE',d);
+  if(h.type==='multi'){
+    if(h.blind)html+=hl('hk-setup','BLIND',h.blind+(h.ante?' | ANT:'+h.ante:''));
+    html+=`<div style="margin:4px 0 2px;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.08em">MULTIWAY</div>`;
+    html+=`<div class="hl-val" style="font-size:11px;color:var(--sub);white-space:pre-wrap;margin-bottom:4px">${h.pfAct}</div>`;
+  } else {
+    html+=hl('hk-setup','SETUP',`Hero (${h.pos||'?'}, ${h.hSt}bb) vs Villain (${h.vSt}bb)`);
+    if(h.blind)html+=hl('hk-setup','BLIND',h.blind+(h.ante?' | ANT:'+h.ante:''));
+    if(h.read) html+=hl('hk-setup','READ',h.read);
+    html+=hl('hk-pf','HAND',`<b>${h.hCards||'??'}</b>`);
+    html+=hl('hk-pf','PREFLOP',h.pfAct||'-');
+    if(h.flop) html+=hl('hk-flop','FLOP',`${h.flop}  →  ${h.fAct}`);
+    if(h.turn) html+=hl('hk-turn','TURN',`${h.turn}  →  ${h.tAct}`);
+    if(h.river)html+=hl('hk-river','RIVER',`${h.river}  →  ${h.rAct}`);
+    if(h.vCards)html+=hl('hk-setup','V HAND',h.vCards);
+  }
+  html+=hl('hk-result','RESULT',`<span class="${resClass}"><b>${h.result||'-'}</b></span>`);
+  if(h.tags&&h.tags.length){
+    const tagsHtml=h.tags.map(t=>`<span class="h-tag-inline">${t}</span>`).join('');
+    html+=`<div class="hl"><span class="hl-key hk-tags">TAGS</span><span class="hl-val">${tagsHtml}</span></div>`;
+  }
+  if(h.reason)html+=hl('hk-reason','REASON',h.reason);
+  if(h.note)  html+=hl('hk-note','NOTE',h.note);
+  return html;
+}
+
+function renderHistory(){
+  const c=document.getElementById('hist-list');
+  if(!hands.length){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">🃏</div>
+      <p style="font-size:13px;line-height:1.6">ยังไม่มี hand ที่บันทึกไว้<br>กลับไปแท็บ บันทึก แล้วกด Save</p></div>`;
+    return;
+  }
+  const dm={ok:{cls:'ok',l:'[OK]'},q:{cls:'q',l:'[?]'},x:{cls:'x',l:'[X]'}};
+  c.innerHTML=hands.map((h,i)=>{
+    const d=dm[h.dec]||{cls:'',l:'[-]'};
+    const tag=h.type==='multi'?`MW-${h.n||'?'}p`:`HU·${h.pos||'?'}`;
+    const tagHtml=(h.tags&&h.tags.length)
+      ?` · `+h.tags.slice(0,2).map(t=>`<span class="h-tag-inline">${t}</span>`).join(''):'';
+    const resClass=!h.result?'res-neu':(h.result.startsWith('-')?'res-neg':'res-pos');
+    return`<div class="hcard">
+      <div class="hhead" onclick="toggleH(${i})">
+        <div style="flex:1;min-width:0">
+          <div class="hnum">#${h.id} <span style="font-size:10px;color:var(--muted)">${tag}</span>${tagHtml}</div>
+          <div class="hprev">${h.hCards||'??'} · <span class="${resClass}">${h.result||'-'}</span></div>
+        </div>
+        <div class="hdec ${d.cls}">${d.l}</div>
+      </div>
+      <div class="hbody" id="hb${i}">${fmtColored(h)}</div>
+      <div class="hfoot">
+        <div class="mini-btn" onclick="copyH(${i})">📋 Copy</div>
+        <div class="mini-btn" style="color:var(--er)" onclick="delH(${i})">🗑 ลบ</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleH(i){document.getElementById('hb'+i).classList.toggle('open');}
+function copyH(i){navigator.clipboard.writeText(fmt(hands[i])).then(()=>toast('คัดลอกแล้ว ✓'));}
+function delH(i){
+  if(!confirm('ลบ hand นี้?'))return;
+  hands.splice(i,1);
+  localStorage.setItem('hj_v6',JSON.stringify(hands));
+  renderHistory();
+}
+function exportAll(){
+  if(!hands.length){alert('ยังไม่มี hand');return;}
+  const txt=hands.map(h=>fmt(h)).join('\n\n'+'─'.repeat(40)+'\n\n');
+  const a=Object.assign(document.createElement('a'),{
+    href:URL.createObjectURL(new Blob([txt],{type:'text/plain'})),
+    download:'hands.txt'
+  });
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════════════
+// VILLAIN NOTES
+// ════════════════════════════════════════════════════════════════
+let villains=JSON.parse(localStorage.getItem('hj_villains')||'{}');
+// villains = { name: [{ts, note}] }
+
+function addVillain(){
+  const inp=document.getElementById('vn-name-input');
+  const name=(inp.value||'').trim();
+  if(!name)return;
+  if(!villains[name]) villains[name]=[];
+  localStorage.setItem('hj_villains',JSON.stringify(villains));
+  inp.value='';
+  renderVillains();
+}
+
+function addVNote(name){
+  const inp=document.getElementById('vni-'+name);
+  if(!inp)return;
+  const txt=(inp.value||'').trim();
+  if(!txt)return;
+  if(!villains[name])villains[name]=[];
+  villains[name].unshift({ts:Date.now(),note:txt});
+  localStorage.setItem('hj_villains',JSON.stringify(villains));
+  inp.value='';
+  renderVillains();
+  // re-open card
+  setTimeout(()=>{
+    const b=document.getElementById('vcb-'+CSS.escape(name));
+    if(b)b.classList.add('open');
+  },50);
+}
+
+function delVNote(name,idx){
+  if(!villains[name])return;
+  villains[name].splice(idx,1);
+  if(!villains[name].length) delete villains[name];
+  localStorage.setItem('hj_villains',JSON.stringify(villains));
+  renderVillains();
+}
+
+function delVillain(name){
+  if(!confirm(`ลบ ${name} ออกทั้งหมด?`))return;
+  delete villains[name];
+  localStorage.setItem('hj_villains',JSON.stringify(villains));
+  renderVillains();
+}
+
+function toggleVCard(name){
+  const b=document.getElementById('vcb-'+CSS.escape(name));
+  if(b) b.classList.toggle('open');
+}
+
+function renderVillains(){
+  const c=document.getElementById('villain-list');
+  if(!c)return;
+  const names=Object.keys(villains);
+  if(!names.length){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">👤</div>
+      <p style="font-size:13px;line-height:1.6">ยังไม่มี Villain ที่บันทึก<br>เพิ่มชื่อ/ชิปเซ็ตด้านบน</p></div>`;
+    return;
+  }
+  c.innerHTML=names.map(name=>{
+    const notes=villains[name]||[];
+    const notesHtml=notes.map((n,i)=>`
+      <div class="vnote-item">
+        <span class="vnote-ts">${new Date(n.ts).toLocaleDateString('th-TH',{day:'numeric',month:'short'})}</span>
+        <span class="vnote-txt">${n.note}</span>
+        <span class="vnote-del" onclick="delVNote('${name.replace(/'/g,"\\'")}',${i})">✕</span>
+      </div>`).join('');
+    return`<div class="vcard">
+      <div class="vcard-head" onclick="toggleVCard('${name.replace(/'/g,"\\'")}')">
+        <span class="vcard-name">${name}</span>
+        <span class="vcard-cnt">${notes.length} notes</span>
+        <span class="chevron" style="font-size:10px;color:var(--muted);margin-left:6px">▼</span>
+        <span style="font-size:11px;color:var(--er);margin-left:8px;cursor:pointer"
+          onclick="event.stopPropagation();delVillain('${name.replace(/'/g,"\\'")}')">🗑</span>
+      </div>
+      <div class="vcard-body" id="vcb-${name.replace(/[^a-zA-Z0-9]/g,'_')}">
+        ${notesHtml||'<div style="font-size:12px;color:var(--muted);padding:8px 0">ยังไม่มี note — เพิ่มด้านล่าง</div>'}
+        <div class="vn-input-row">
+          <input class="field" id="vni-${name.replace(/[^a-zA-Z0-9]/g,'_')}"
+            placeholder="จด tell, pattern, นิสัย..."
+            onkeydown="if(event.key==='Enter')addVNote('${name.replace(/'/g,"\\'")}')">
+          <button class="vn-add-btn" onclick="addVNote('${name.replace(/'/g,"\\'")}')">+ Note</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// SESSION STATS
+// ════════════════════════════════════════════════════════════════
+function renderSession(){
+  const c=document.getElementById('session-content');
+  if(!hands.length){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">📊</div>
+      <p style="font-size:13px;line-height:1.6">ยังไม่มี hand ที่บันทึก<br>กลับไปบันทึก hand ก่อน</p></div>`;
+    return;
+  }
+  const total=hands.length;
+  const decCnt={ok:0,q:0,x:0,none:0};
+  hands.forEach(h=>{ decCnt[h.dec]=(decCnt[h.dec]||0)+1; });
+  // P&L
+  let pl=0;
+  const plVals=[];
+  hands.slice().reverse().forEach(h=>{
+    const v=parseFloat(h.result);
+    if(!isNaN(v)){pl+=v;plVals.push(pl);}
+  });
+  const plStr=pl>=0?`+${pl.toFixed(1)}`:`${pl.toFixed(1)}`;
+  const plClass=pl>=0?'res-pos':pl<0?'res-neg':'res-neu';
+  // Tag frequency
+  const tagCnt={};
+  hands.forEach(h=>(h.tags||[]).forEach(t=>{ tagCnt[t]=(tagCnt[t]||0)+1; }));
+  const topTags=Object.entries(tagCnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxTag=topTags[0]?.[1]||1;
+  // [?]+[X] breakdown by tag
+  const reviewHands=hands.filter(h=>h.dec==='q'||h.dec==='x');
+
+  c.innerHTML=`
+    <!-- Overview -->
+    <div class="label" style="margin-bottom:10px">ภาพรวม (${total} hands)</div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-num">${total}</div>
+        <div class="stat-lbl">Total Hands</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num ${plClass}">${plStr}</div>
+        <div class="stat-lbl">Total P&L (bb)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">${total?Math.round((decCnt.ok||0)/total*100):0}%</div>
+        <div class="stat-lbl">OK Rate</div>
+      </div>
+    </div>
+
+    <!-- Decision breakdown -->
+    <div class="label" style="margin-bottom:8px">Decision Breakdown</div>
+    <div class="dec-stat-row">
+      <div class="dec-stat ok">
+        <span class="dec-stat-n">${decCnt.ok||0}</span>
+        <div class="dec-stat-l">[OK] ถูกต้อง</div>
+      </div>
+      <div class="dec-stat q">
+        <span class="dec-stat-n">${decCnt.q||0}</span>
+        <div class="dec-stat-l">[?] ไม่แน่ใจ</div>
+      </div>
+      <div class="dec-stat x">
+        <span class="dec-stat-n">${decCnt.x||0}</span>
+        <div class="dec-stat-l">[X] ผิดพลาด</div>
+      </div>
+    </div>
+
+    <!-- Tag frequency -->
+    ${topTags.length?`
+    <div class="label" style="margin-bottom:8px">Concept Tags ที่เจอบ่อย</div>
+    <div class="about-card" style="padding:14px;margin-bottom:12px">
+      ${topTags.map(([tag,cnt])=>`
+        <div class="tfreq-row">
+          <span class="tfreq-name">${tag}</span>
+          <div class="tfreq-bar"><div class="tfreq-fill" style="width:${Math.round(cnt/maxTag*100)}%"></div></div>
+          <span class="tfreq-cnt">${cnt}</span>
+        </div>`).join('')}
+    </div>`:''}
+
+    <!-- Review list -->
+    ${reviewHands.length?`
+    <div class="label" style="margin-bottom:8px">🔍 Hands ที่ต้อง Review (${reviewHands.length})</div>
+    ${reviewHands.map(h=>{
+      const dm={ok:'[OK]',q:'[?]',x:'[X]'};
+      const dc={ok:'ok',q:'q',x:'x'};
+      return`<div class="hcard" style="margin-bottom:8px">
+        <div class="hhead" style="cursor:default">
+          <div style="flex:1">
+            <div class="hnum">#${h.id} <span style="font-size:10px;color:var(--muted)">${h.type==='multi'?`MW`:`HU·${h.pos||'?'}`}</span></div>
+            <div class="hprev">${h.hCards||'??'} · ${h.result||'-'}</div>
+            ${h.reason?`<div style="font-size:11px;color:var(--wn);margin-top:3px">↳ ${h.reason.slice(0,60)}${h.reason.length>60?'…':''}</div>`:''}
+          </div>
+          <div class="hdec ${dc[h.dec]||''}">${dm[h.dec]||'[-]'}</div>
+        </div>
+      </div>`;
+    }).join('')}`:'<div style="font-size:13px;color:var(--ok);padding:12px 0 4px">✓ ไม่มี hand ที่ต้อง review</div>'}
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
+// GUIDE ACCORDION
+// ════════════════════════════════════════════════════════════════
+function toggleGuide(id){
+  const a=document.getElementById(id);
+  const q=a?.previousElementSibling;
+  const chev=document.getElementById(id+'-chev');
+  if(!a)return;
+  const open=a.classList.contains('open');
+  a.classList.toggle('open',!open);
+  if(q)q.classList.toggle('open',!open);
+  if(chev)chev.textContent=open?'▼':'▲';
+}
+
+// ════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════
+function toast(msg){
+  const e=document.getElementById('toast');
+  e.textContent=msg;e.classList.add('show');
+  setTimeout(()=>e.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>
